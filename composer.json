@@ -13,18 +13,12 @@
       "role": "Developer"
     }
   ],
-  "repositories": [
-  {
-    "type": "pear",
-    "url": "http://pear.apache.org/log4php/"
-  }],
   "autoload": {
     "psr-0": {
-      "Ding": "src/mg"
+      "Ding": "src/"
     }
   },
   "require": {
-    "php": ">=5.3.3",
-    "apache/log4php": "2.3.0"
+    "php": ">=5.3.3"
   }
 }
