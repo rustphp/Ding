@@ -763,13 +763,13 @@ class ContainerImpl implements IContainer
     {
         if (self::$_containerInstance === false) {
             // Init cache subsystems.
-            if (isset($properties['ding']['cache'])) {
-                CacheLocator::configure($properties['ding']['cache']);
+            if (isset($properties['Ding']['cache'])) {
+                CacheLocator::configure($properties['Ding']['cache']);
             }
-            if (isset($properties['ding']['log4php.properties'])) {
-                \Logger::configure($properties['ding']['log4php.properties']);
+            if (isset($properties['Ding']['log4php.properties'])) {
+                \Logger::configure($properties['Ding']['log4php.properties']);
             }
-            self::$_containerInstance = new ContainerImpl($properties['ding']['factory']);
+            self::$_containerInstance = new ContainerImpl($properties['Ding']['factory']);
         }
         return self::$_containerInstance;
     }

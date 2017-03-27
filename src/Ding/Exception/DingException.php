@@ -1,6 +1,6 @@
 <?php
 /**
- * All ding exceptions extend this one.
+ * All Ding exceptions extend this one.
  *
  * PHP Version 5
  *
@@ -28,7 +28,7 @@
 namespace Ding\Exception;
 
 /**
- * All ding exceptions extend this one.
+ * All Ding exceptions extend this one.
  *
  * PHP Version 5
  *

@@ -1,6 +1,6 @@
 <?php
 /**
- * Cache Locator. This singleton is used througout the ding architecture in
+ * Cache Locator. This singleton is used througout the Ding architecture in
  * order to find caches for different subsystems.
  *
  * PHP Version 5
@@ -37,7 +37,7 @@ use Ding\Cache\Impl\MemcachedCacheImpl;
 use Ding\Cache\Impl\DummyCacheImpl;
 
 /**
- * Cache Locator. This singleton is used througout the ding architecture in
+ * Cache Locator. This singleton is used througout the Ding architecture in
  * order to find caches for different subsystems.
  *
  * PHP Version 5
