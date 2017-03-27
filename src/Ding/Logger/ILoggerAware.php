@@ -47,9 +47,9 @@ interface ILoggerAware
     /**
      * Called by the container to inject the logger instance.
      *
-     * @param \Logger $logger A log4php instance or dummy logger.
+     * @param Logger $logger A log4php instance or dummy logger.
      *
      * @return void
      */
-    public function setLogger(\Logger $logger);
+    public function setLogger(Logger $logger);
 }
