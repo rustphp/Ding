@@ -6,4 +6,7 @@ log.log
 build
 bookstore.sqlite
 resources/php.ini
-
+_docs/
+composer.lock
+.idea/
+vendor/
