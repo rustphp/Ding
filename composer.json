@@ -1,5 +1,5 @@
 {
-  "name": "marcelog/ding",
+  "name": "rustphp/ding",
   "type": "framework",
   "description": "PHP Dependency Injection based on Spring(tm), with Aspect Oriented Programming, MVC",
   "keywords": [
