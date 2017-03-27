@@ -1,8 +1,11 @@
 {
   "name": "rustphp/ding",
   "type": "framework",
-  "description": "PHP Dependency Injection based on Spring(tm), with Aspect Oriented Programming, MVC",
+  "description": " fork from marcelog/ding(PHP Dependency Injection based on Spring(tm), with Aspect Oriented Programming, MVC) for PHP7.1 and base on Swoole extension.",
   "keywords": [
+    "php7.1",
+    "swoole",
+    "seaslog",
     "dependency",
     "injection",
     "di",
@@ -35,7 +38,7 @@
     }
   },
   "require": {
-    "php": ">=7.0",
+    "php": ">=7.1",
     "ext-SeasLog": "1.6.9",
     "ext-swoole": "1.9.*"
   }
