@@ -36,6 +36,7 @@ use Ding\Mvc\ModelAndView;
 use Ding\Mvc\RedirectModelAndView;
 use Ding\Mvc\ForwardModelAndView;
 use Ding\Container\Impl\ContainerImpl;
+use Ding\Logger\Logger;
 
 /**
  * Http front controller.
@@ -118,7 +119,7 @@ class HttpFrontController
         $filtersPassed = true;
         $session = HttpSession::getSession();
         $container = ContainerImpl::getInstance($properties);
-        self::$_logger = \Logger::getLogger(__CLASS__);
+        self::$_logger =new Logger(__CLASS__);
         $baseUrlLen = strlen($baseUrl);
         ob_start();
         $exceptionMapper = $render = $dispatcher = $viewResolver = false;

@@ -51,6 +51,7 @@ use Ding\Bean\BeanConstructorArgumentDefinition;
 use Ding\Bean\BeanDefinition;
 use Ding\Bean\BeanPropertyDefinition;
 use Ding\MessageSource\IMessageSource;
+use Ding\Logger\Logger;
 
 /**
  * Container implementation.
@@ -937,7 +938,7 @@ class ContainerImpl implements IContainer
             $bean->setBeanName($def->getName());
         }
         if ($rClass->implementsInterface('Ding\Logger\ILoggerAware')) {
-            $bean->setLogger(\Logger::getLogger($class));
+            $bean->setLogger(new Logger($class));
         }
         if ($rClass->implementsInterface('Ding\Container\IContainerAware')) {
             $bean->setContainer($this);
@@ -1053,7 +1054,7 @@ class ContainerImpl implements IContainer
     protected function __construct(array $options)
     {
         // Setup logger.
-        $this->_logger = \Logger::getLogger(get_class($this));
+        $this->_logger = new Logger(get_class($this));
         $this->_logDebugEnabled = $this->_logger->isDebugEnabled();
         $soullessArray = array();
         $this->_beanAliases = $soullessArray;
