@@ -5,8 +5,6 @@
  * some kind of Aspect DTO created somewhere else and used by the container to
  * assemble the final bean.
  *
- * PHP Version 5
- *
  * @category Ding
  * @package  Aspect
  * @author   Marcelo Gornstein <marcelog@gmail.com>
@@ -29,74 +27,66 @@
  *
  */
 namespace Ding\Aspect;
-
 /**
  * This class is used when reading the bean definition. Aspects will be
  * constructed and applyed using this information, you may thing of this as
  * some kind of Aspect DTO created somewhere else and used by the container to
  * assemble the final bean.
  *
- * PHP Version 5
- *
- * @category Ding
- * @package  Aspect
- * @author   Marcelo Gornstein <marcelog@gmail.com>
- * @license  http://marcelog.github.com/ Apache License 2.0
- * @link     http://marcelog.github.com/
+ * @package Ding\Aspect
  */
-class AspectDefinition
-{
+class AspectDefinition {
     /**
      * This kind of aspect will be run before the method call.
+     *
      * @var integer
      */
-    const ASPECT_METHOD = 0;
-
+    const ASPECT_METHOD=0;
     /**
      * This kind of aspect will be run when the method throws an uncatched
      * exception.
+     *
      * @var integer
      */
-    const ASPECT_EXCEPTION = 1;
-
+    const ASPECT_EXCEPTION=1;
     /**
      * Aspect name.
+     *
      * @var string
      */
-    private $_name;
-
+    private $name;
     /**
      * Target aspected methods.
+     *
      * @var string[]
      */
-    private $_pointcuts;
-
+    private $pointcuts;
     /**
      * Aspect bean name.
+     *
      * @var string
      */
-    private $_beanName;
-
+    private $beanName;
     /**
      * Aspect type (or when the advice should be invoked).
+     *
      * @var integer
      */
-    private $_type;
-
+    private $type;
     /**
      * Regular expression for this aspect (global).
+     *
      * @var string
      */
-    private $_expression;
+    private $expression;
 
     /**
      * Returns the expression for this aspect.
      *
      * @return string
      */
-    public function getExpression()
-    {
-        return $this->_expression;
+    public function getExpression() : string {
+        return $this->expression;
     }
 
     /**
@@ -104,19 +94,17 @@ class AspectDefinition
      *
      * @return string[]
      */
-    public function getPointcuts()
-    {
-        return $this->_pointcuts;
+    public function getPointcuts() : array {
+        return $this->pointcuts;
     }
 
     /**
      * Returns advice type.
      *
-     * @return integer
+     * @return int
      */
-    public function getType()
-    {
-        return $this->_type;
+    public function getType() : int {
+        return $this->type;
     }
 
     /**
@@ -124,19 +112,17 @@ class AspectDefinition
      *
      * @return string
      */
-    public function getBeanName()
-    {
-        return $this->_beanName;
+    public function getBeanName() : string {
+        return $this->beanName;
     }
 
     /**
      * Returns aspect name.
      *
-	 * @return string
+     * @return string
      */
-    public function getName()
-    {
-        return $this->_name;
+    public function getName() : string {
+        return $this->name;
     }
 
     /**
@@ -147,15 +133,13 @@ class AspectDefinition
      * @param integer  $type       Aspect type (see this class constants).
      * @param string   $beanName   Aspect bean name.
      * @param string   $expression Regular expression for this aspect.
-     *
-     * @return void
      */
-    public function __construct($name, $pointcuts, $type, $beanName, $expression)
-    {
-        $this->_name = $name;
-        $this->_pointcuts = $pointcuts;
-        $this->_beanName = $beanName;
-        $this->_type = $type;
-        $this->_expression = $expression;
+    public function __construct(string $name, array $pointcuts, int $type, string $beanName,
+        string $expression) {
+        $this->name=$name;
+        $this->pointcuts=$pointcuts;
+        $this->beanName=$beanName;
+        $this->type=$type;
+        $this->expression=$expression;
     }
 }

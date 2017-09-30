@@ -2,8 +2,6 @@
 /**
  * Bean Definition.
  *
- * PHP Version 5
- *
  * @category Ding
  * @package  Bean
  * @author   Marcelo Gornstein <marcelog@gmail.com>
@@ -26,156 +24,146 @@
  *
  */
 namespace Ding\Bean;
-
 /**
  * Bean Definition.
  *
- * PHP Version 5
- *
- * @category Ding
- * @package  Bean
- * @author   Marcelo Gornstein <marcelog@gmail.com>
- * @license  http://marcelog.github.com/ Apache License 2.0
- * @link     http://marcelog.github.com/
+ * @package Ding\Bean
  */
-class BeanDefinition
-{
+class BeanDefinition {
     /**
      * Specifies scope prototype for beans, meaning that a new instance will
      * be returned every time.
+     *
      * @var integer
      */
-    const BEAN_PROTOTYPE = 0;
-
+    const BEAN_PROTOTYPE=0;
     /**
      * Specifies scope singleton for beans, meaning that the same instance will
      * be returned every time.
+     *
      * @var integer
      */
-    const BEAN_SINGLETON = 1;
-
+    const BEAN_SINGLETON=1;
     /**
      * Bean name
+     *
      * @var string
      */
-    private $_name;
-
+    private $name;
     /**
      * Bean class name.
+     *
      * @var string
      */
-    private $_class;
-
+    private $class;
     /**
      * Bean type (scope). See this class constants.
+     *
      * @var integer
      */
-    private $_scope;
-
+    private $scope;
     /**
      * Properties to be di'ed to this bean.
+     *
      * @var BeanPropertyDefinition[]
      */
-    private $_properties;
-
+    private $properties;
     /**
      * Aspects mapped to this bean.
-     * @var string[]
+     *
+     * @var null|string[]
      */
-    private $_aspects;
-
+    private $aspects;
     /**
      * Constructor arguments.
+     *
      * @var BeanConstructorArgumentDefinition[]
      */
-    private $_constructorArgs;
-
+    private $constructorArgs;
     /**
      * Factory method name (if any).
+     *
      * @var string
      */
-    private $_factoryMethod;
-
+    private $factoryMethod;
     /**
      * Factory bean name (if any).
+     *
      * @var string
      */
-    private $_factoryBean;
-
+    private $factoryBean;
     /**
      * Init method (if any).
+     *
      * @var string
      */
-    private $_initMethod;
-
+    private $initMethod;
     /**
      * Destroy method (called when container is destroyed).
+     *
      * @var string
      */
-    private $_destroyMethod;
-
+    private $destroyMethod;
     /**
      * Dependency beans literally specified in the configuration.
+     *
      * @var string[]
      */
-    private $_dependsOn;
-
+    private $dependsOn;
     /**
      * Methods injection.
+     *
      * @var string[]
      */
-    private $_lookupMethods;
-
+    private $lookupMethods;
     /**
      * True if this bean cant be instantiated.
+     *
      * @var boolean
      */
-    private $_isAbstract;
-
+    private $isAbstract;
     /**
      * Parent bean, if any.
+     *
      * @var string
      */
-    private $_parent;
-
+    private $parent;
     /**
      * Bean aliases.
+     *
      * @var string[]
      */
-    private $_aliases;
-
+    private $aliases;
     /**
      * Holds the name of the proxy class that was generated for this bean, only
      * valid for those who actually have aspects applied.
+     *
      * @var string
      */
-    private $_proxyClassName;
-
+    private $proxyClassName;
     /**
      * When wiring by type, this will mark this bean definition as the primary
      * source when multiple candidates are found.
+     *
      * @var boolean;
      */
-    private $_isPrimaryCandidate;
+    private $isPrimaryCandidate;
 
     /**
      * Mark this bean definition as primary candidate when multiple candidates
      * are found for wiring by type.
-     *
-	 * @return void
      */
-    public function markAsPrimaryCandidate()
-    {
-        $this->_isPrimaryCandidate = true;
+    public function markAsPrimaryCandidate() : void {
+        $this->isPrimaryCandidate=true;
     }
+
     /**
      * True if this bean definition is the primary candidate when wiring by type.
      *
      * @return boolean
      */
-    public function isPrimaryCandidate()
-    {
-        return $this->_isPrimaryCandidate;
+    public function isPrimaryCandidate() : bool {
+        return $this->isPrimaryCandidate;
     }
 
     /**
@@ -183,9 +171,8 @@ class BeanDefinition
      *
      * @return string[]
      */
-    public function getAliases()
-    {
-        return $this->_aliases;
+    public function getAliases() : array {
+        return $this->aliases;
     }
 
     /**
@@ -193,10 +180,10 @@ class BeanDefinition
      *
      * @return void
      */
-    public function clearAliases()
-    {
-        $this->_aliases = array();
+    public function clearAliases() : void {
+        $this->aliases=[];
     }
+
     /**
      * Add an alias to this bean.
      *
@@ -204,9 +191,8 @@ class BeanDefinition
      *
      * @return void
      */
-    public function addAlias($name)
-    {
-        $this->_aliases[$name] = $name;
+    public function addAlias(string $name) : void {
+        $this->aliases[$name]=$name;
     }
 
     /**
@@ -214,9 +200,8 @@ class BeanDefinition
      *
      * @return boolean
      */
-    public function isAbstract()
-    {
-        return $this->_isAbstract;
+    public function isAbstract() : bool {
+        return $this->isAbstract;
     }
 
     /**
@@ -224,9 +209,8 @@ class BeanDefinition
      *
      * @return void
      */
-    public function makeAbstract()
-    {
-        $this->_isAbstract = true;
+    public function makeAbstract() : void {
+        $this->isAbstract=true;
     }
 
     /**
@@ -234,9 +218,8 @@ class BeanDefinition
      *
      * @return void
      */
-    public function makeConcrete()
-    {
-        $this->_isAbstract = false;
+    public function makeConcrete() : void {
+        $this->isAbstract=false;
     }
 
     /**
@@ -244,9 +227,8 @@ class BeanDefinition
      *
      * @return boolean
      */
-    public function isSingleton()
-    {
-        return $this->_scope == BeanDefinition::BEAN_SINGLETON;
+    public function isSingleton() : bool {
+        return $this->scope == BeanDefinition::BEAN_SINGLETON;
     }
 
     /**
@@ -254,9 +236,8 @@ class BeanDefinition
      *
      * @return boolean
      */
-    public function isPrototype()
-    {
-        return $this->_scope == BeanDefinition::BEAN_PROTOTYPE;
+    public function isPrototype() : bool {
+        return $this->scope == BeanDefinition::BEAN_PROTOTYPE;
     }
 
     /**
@@ -264,9 +245,8 @@ class BeanDefinition
      *
      * @return boolean
      */
-    public function hasAspects()
-    {
-        return $this->_aspects !== false;
+    public function hasAspects() : bool {
+        return $this->aspects !== null;
     }
 
     /**
@@ -276,9 +256,8 @@ class BeanDefinition
      *
      * @return void
      */
-    public function setAspects(array $aspects)
-    {
-        $this->_aspects = $aspects;
+    public function setAspects(array $aspects) : void {
+        $this->aspects=$aspects;
     }
 
     /**
@@ -286,9 +265,8 @@ class BeanDefinition
      *
      * @return string[]
      */
-    public function getAspects()
-    {
-        return $this->_aspects;
+    public function getAspects() : array {
+        return $this->aspects;
     }
 
     /**
@@ -298,9 +276,8 @@ class BeanDefinition
      *
      * @return void
      */
-    public function setScope($scope)
-    {
-        $this->_scope = $scope;
+    public function setScope(string $scope) : void {
+        $this->scope=$scope;
     }
 
     /**
@@ -310,9 +287,8 @@ class BeanDefinition
      *
      * @return void
      */
-    public function setMethodInjections($methods)
-    {
-        $this->_lookupMethods = $methods;
+    public function setMethodInjections(array $methods) : void {
+        $this->lookupMethods=$methods;
     }
 
     /**
@@ -320,9 +296,8 @@ class BeanDefinition
      *
      * @return string[]
      */
-    public function getMethodInjections()
-    {
-        return $this->_lookupMethods;
+    public function getMethodInjections() : array {
+        return $this->lookupMethods;
     }
 
     /**
@@ -332,9 +307,8 @@ class BeanDefinition
      *
      * @return void
      */
-    public function setName($name)
-    {
-        $this->_name = $name;
+    public function setName(string $name) : void {
+        $this->name=$name;
     }
 
     /**
@@ -342,9 +316,8 @@ class BeanDefinition
      *
      * @return string
      */
-    public function getName()
-    {
-        return $this->_name;
+    public function getName() : string {
+        return $this->name;
     }
 
     /**
@@ -354,9 +327,8 @@ class BeanDefinition
      *
      * @return void
      */
-    public function setClass($class)
-    {
-        $this->_class = $class;
+    public function setClass(string $class) : void {
+        $this->class=$class;
     }
 
     /**
@@ -364,9 +336,8 @@ class BeanDefinition
      *
      * @return string
      */
-    public function getClass()
-    {
-        return $this->_class;
+    public function getClass() : string {
+        return $this->class;
     }
 
     /**
@@ -376,9 +347,8 @@ class BeanDefinition
      *
      * @return void
      */
-    public function setProperties(array $properties)
-    {
-        $this->_properties = $properties;
+    public function setProperties(array $properties) : void {
+        $this->properties=$properties;
     }
 
     /**
@@ -386,21 +356,19 @@ class BeanDefinition
      *
      * @return BeanPropertyDefinition[]
      */
-    public function getProperties()
-    {
-        return $this->_properties;
+    public function getProperties() : array {
+        return $this->properties;
     }
 
     /**
      * Sets new arguments for this bean.
      *
-     * @param BeanConstructorDefinition[] $arguments New arguments.
+     * @param BeanConstructorArgumentDefinition[] $arguments New arguments.
      *
      * @return void
      */
-    public function setArguments(array $arguments)
-    {
-        $this->_constructorArgs = $arguments;
+    public function setArguments(array $arguments) : void {
+        $this->constructorArgs=$arguments;
     }
 
     /**
@@ -408,9 +376,8 @@ class BeanDefinition
      *
      * @return BeanConstructorArgumentDefinition[]
      */
-    public function getArguments()
-    {
-        return $this->_constructorArgs;
+    public function getArguments() : array {
+        return $this->constructorArgs;
     }
 
     /**
@@ -420,18 +387,17 @@ class BeanDefinition
      *
      * @return void
      */
-    public function setFactoryMethod($factoryMethod)
-    {
-        $this->_factoryMethod = $factoryMethod;
+    public function setFactoryMethod(?string $factoryMethod) : void {
+        $this->factoryMethod=$factoryMethod;
     }
+
     /**
-     * Factory method, false if none was set.
+     * Factory method, null if none was set.
      *
      * @return string
      */
-    public function getFactoryMethod()
-    {
-        return $this->_factoryMethod;
+    public function getFactoryMethod() : ?string {
+        return $this->factoryMethod;
     }
 
     /**
@@ -441,19 +407,17 @@ class BeanDefinition
      *
      * @return void
      */
-    public function setFactoryBean($factoryBean)
-    {
-        $this->_factoryBean = $factoryBean;
+    public function setFactoryBean(?string $factoryBean) : void {
+        $this->factoryBean=$factoryBean;
     }
 
     /**
-     * Factory bean, false if none was set.
+     * Factory bean, null if none was set.
      *
-     * @return string
+     * @return null|string
      */
-    public function getFactoryBean()
-    {
-        return $this->_factoryBean;
+    public function getFactoryBean() :?string {
+        return $this->factoryBean;
     }
 
     /**
@@ -463,19 +427,17 @@ class BeanDefinition
      *
      * @return void
      */
-    public function setInitMethod($initMethod)
-    {
-        $this->_initMethod = $initMethod;
+    public function setInitMethod(?string $initMethod) : void {
+        $this->initMethod=$initMethod;
     }
 
     /**
-     * Init method, false if none was set.
+     * Init method, null if none was set.
      *
      * @return string
      */
-    public function getInitMethod()
-    {
-        return $this->_initMethod;
+    public function getInitMethod() :?string {
+        return $this->initMethod;
     }
 
     /**
@@ -485,19 +447,17 @@ class BeanDefinition
      *
      * @return void
      */
-    public function setDestroyMethod($destroyMethod)
-    {
-        $this->_destroyMethod = $destroyMethod;
+    public function setDestroyMethod(?string $destroyMethod) {
+        $this->destroyMethod=$destroyMethod;
     }
 
     /**
-     * Destroy method, false if none was set.
+     * Destroy method, null if none was set.
      *
-     * @return string
+     * @return null|string
      */
-    public function getDestroyMethod()
-    {
-        return $this->_destroyMethod;
+    public function getDestroyMethod() :?string {
+        return $this->destroyMethod;
     }
 
     /**
@@ -505,21 +465,19 @@ class BeanDefinition
      *
      * @return string[]
      */
-    public function getDependsOn()
-    {
-        return $this->_dependsOn;
+    public function getDependsOn() : array {
+        return $this->dependsOn;
     }
 
     /**
      * Set bean dependencies.
-	 *
+     *
      * @param string[] $dependsOn Dependencies (bean names).
      *
      * @return void
      */
-    public function setDependsOn(array $dependsOn)
-    {
-        $this->_dependsOn = $dependsOn;
+    public function setDependsOn(array $dependsOn) : void {
+        $this->dependsOn=$dependsOn;
     }
 
     /**
@@ -529,10 +487,10 @@ class BeanDefinition
      *
      * @return BeanDefinition
      */
-    public function makeChildBean($childName)
-    {
-        $bean = serialize($this);
-        $bean = unserialize($bean);
+    public function makeChildBean(string $childName) : BeanDefinition {
+        //$bean=serialize($this);
+        //$bean=unserialize($bean);
+        $bean=clone $this;
         $bean->setName($childName);
         $bean->clearAliases();
         $bean->makeConcrete();
@@ -546,8 +504,7 @@ class BeanDefinition
      *
      * @return string
      */
-    public static function generateName($prefix)
-    {
+    public static function generateName(string $prefix) : string {
         return $prefix . mt_rand(1, microtime(true));
     }
 
@@ -556,9 +513,8 @@ class BeanDefinition
      *
      * @return boolean
      */
-    public function isCreatedByConstructor()
-    {
-        return empty($this->_factoryMethod);
+    public function isCreatedByConstructor() : bool {
+        return empty($this->factoryMethod);
     }
 
     /**
@@ -567,62 +523,69 @@ class BeanDefinition
      *
      * @return boolean
      */
-    public function isCreatedWithFactoryBean()
-    {
-        return !empty($this->_factoryBean);
+    public function isCreatedWithFactoryBean() : bool {
+        return !empty($this->factoryBean);
     }
 
-    public function setProxyClassName($name)
-    {
-        $this->_proxyClassName = $name;
+    /**
+     * @param string $name
+     */
+    public function setProxyClassName(string $name) : void {
+        $this->proxyClassName=$name;
     }
 
-    public function getProxyClassName()
-    {
-        return $this->_proxyClassName;
+    /**
+     * @return string
+     */
+    public function getProxyClassName() :?string {
+        return $this->proxyClassName;
     }
 
-    public function hasProxyClass()
-    {
-        return !is_null($this->_proxyClassName);
+    /**
+     * @return bool
+     */
+    public function hasProxyClass() : bool {
+        return (null !== $this->proxyClassName);
     }
 
-    public function hasInitMethod()
-    {
-        return !is_null($this->_initMethod);
+    /**
+     * @return bool
+     */
+    public function hasInitMethod() : bool {
+        return (null !== $this->initMethod);
     }
-    public function hasDestroyMethod()
-    {
-        return !is_null($this->_destroyMethod);
+
+    /**
+     * @return bool
+     */
+    public function hasDestroyMethod() : bool {
+        return (null !== $this->destroyMethod);
     }
 
     /**
      * Constructor.
      *
      * @param string $name Bean name.
-     *
-     * @return void
      */
-    public function __construct($name)
-    {
-        $this->_name = $name;
-        $soullessString = '';
-        $soullessArray = array();
-        $this->_class = 'stdclass';
-        $this->_aliases = $soullessArray;
-        $this->_scope = BeanDefinition::BEAN_SINGLETON;
-        $this->_factoryMethod = $soullessString;
-        $this->_factoryBean = $soullessString;
-        $this->_initMethod = null;
-        $this->_lookupMethods = $soullessArray;
-        $this->_destroyMethod = null;
-        $this->_dependsOn = $soullessArray;
-        $this->_properties = $soullessArray;
-        $this->_aspects = false;
-        $this->_constructorArgs = $soullessArray;
-        $this->_isAbstract = false;
-        $this->_parent = null;
-        $this->_proxyClassName = null;
-        $this->_isPrimaryCandidate = false;
+    public function __construct(string $name) {
+        $this->name=$name;
+        $soullessString='';
+        $soullessArray=[];
+        $this->class='stdclass';
+        $this->aliases=$soullessArray;
+        $this->scope=BeanDefinition::BEAN_SINGLETON;
+        $this->factoryMethod=$soullessString;
+        $this->factoryBean=$soullessString;
+        $this->initMethod=null;
+        $this->lookupMethods=$soullessArray;
+        $this->destroyMethod=null;
+        $this->dependsOn=$soullessArray;
+        $this->properties=$soullessArray;
+        $this->aspects=null;
+        $this->constructorArgs=$soullessArray;
+        $this->isAbstract=false;
+        $this->parent=null;
+        $this->proxyClassName=null;
+        $this->isPrimaryCandidate=false;
     }
 }

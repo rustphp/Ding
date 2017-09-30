@@ -2,8 +2,6 @@
 /**
  * Ding autoloader, you will surely need this.
  *
- * PHP Version 5
- *
  * @category Ding
  * @package  Autoloader
  * @author   Marcelo Gornstein <marcelog@gmail.com>
@@ -26,32 +24,28 @@
  *
  */
 namespace Ding\Autoloader;
-
 /**
  * Ding autoloader, you will surely need this.
  *
- * PHP Version 5
- *
- * @category Ding
- * @package  Autoloader
- * @author   Marcelo Gornstein <marcelog@gmail.com>
- * @license  http://marcelog.github.com/ Apache License 2.0
- * @link     http://marcelog.github.com/
+ * @package Ding\Autoloader
  */
-class Autoloader
-{
+class Autoloader {
     /**
      * Called by php to load a given class. Returns true if the class was
      * successfully loaded.
      *
-     * @return boolean
+     * @param string $class
+     *
+     * @return bool
      */
-    public static function load($class)
-    {
-        $classFile = str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
-        $file = stream_resolve_include_path($classFile);
+    public static function load(string $class) : bool {
+        if (class_exists($class, false)) {
+            return true;
+        }
+        $classFile=str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
+        $file=stream_resolve_include_path($classFile);
         if ($file && file_exists($file)) {
-            require_once $file;
+            include $file;
             return true;
         }
         return false;
@@ -64,8 +58,7 @@ class Autoloader
      *
      * @return boolean
      */
-    public static function register()
-    {
+    public static function register() : bool {
         return spl_autoload_register('\Ding\Autoloader\Autoloader::load');
     }
 }

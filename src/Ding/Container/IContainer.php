@@ -2,8 +2,6 @@
 /**
  * Interface for a container.
  *
- * PHP Version 5
- *
  * @category Ding
  * @package  Container
  * @author   Marcelo Gornstein <marcelog@gmail.com>
@@ -27,7 +25,6 @@
  */
 namespace Ding\Container;
 
-use Ding\Bean\BeanDefinition;
 use Ding\Bean\IBeanDefinitionProvider;
 use Ding\MessageSource\IMessageSource;
 use Ding\Resource\IResourceLoader;
@@ -35,36 +32,24 @@ use Ding\Resource\IResourceLoader;
 /**
  * Interface for a container.
  *
- * PHP Version 5
- *
- * @category Ding
- * @package  Container
- * @author   Marcelo Gornstein <marcelog@gmail.com>
- * @license  http://marcelog.github.com/ Apache License 2.0
- * @link     http://marcelog.github.com/
+ * @package Ding\Container
  */
-interface IContainer extends IResourceLoader, IMessageSource, IBeanDefinitionProvider
-{
+interface IContainer extends IResourceLoader, IMessageSource, IBeanDefinitionProvider {
     /**
      * Register a shutdown (destroy-method) method for a bean.
      *
      * @param object $bean   Bean to call.
      * @param string $method Method to call.
-     *
-     * @see Ding\Container.IContainer::registerShutdownMethod()
-     *
-     * @return void
      */
-    public function registerShutdownMethod($bean, $method);
+    public function registerShutdownMethod($bean, $method) : void;
 
     /**
      * Dispatch an event to all listeners.
      *
      * @param string $eventName The event name.
      * @param mixed  $data      The associated data to the event.
-     * @return void
      */
-    public function eventDispatch($eventName, $data = null);
+    public function eventDispatch(string $eventName, $data=null) : void;
 
     /**
      * Register a new listener to an event. The callback must implement a
@@ -72,19 +57,15 @@ interface IContainer extends IResourceLoader, IMessageSource, IBeanDefinitionPro
      *
      * @param string $eventName The event name.
      * @param string $beanName  The event handler.
-     *
-     * @return void
      */
-    public function eventListen($eventName, $beanName);
+    public function eventListen(string $eventName, string $beanName) : void;
 
     /**
      * Registers a new bean definition provider in the container.
      *
      * @param IBeanDefinitionProvider $provider New bean definition provider.
-     *
-     * @return void
      */
-    public function registerBeanDefinitionProvider(IBeanDefinitionProvider $provider);
+    public function registerBeanDefinitionProvider(IBeanDefinitionProvider $provider) : void;
 
     /**
      * Register new properties in the container, that will replace the value
@@ -92,17 +73,13 @@ interface IContainer extends IResourceLoader, IMessageSource, IBeanDefinitionPro
      * php. properties with ini_set().
      *
      * @param string[] $properties
-     *
-     * @return void
      */
-    public function registerProperties(array $properties);
+    public function registerProperties(array $properties) : void;
+
     /**
      * Returns a bean.
      *
      * @param string $name Bean name.
-     *
-     * @throws BeanFactoryException
-     * @return object
      */
-    public function getBean($name);
+    public function getBean(string $name);
 }

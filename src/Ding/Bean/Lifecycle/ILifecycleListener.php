@@ -2,8 +2,6 @@
 /**
  * Lifecycle listener interface.
  *
- * PHP Version 5
- *
  * @category   Ding
  * @package    Bean
  * @subpackage Lifecycle
@@ -29,19 +27,9 @@
 namespace Ding\Bean\Lifecycle;
 
 /**
- * Lifecycle listener interface.
+ * Lifecycle listener interface
  *
- * PHP Version 5
- *
- * @category   Ding
- * @package    Bean
- * @subpackage Lifecycle
- * @author     Marcelo Gornstein <marcelog@gmail.com>
- * @license    http://marcelog.github.com/ Apache License 2.0
- * @link       http://marcelog.github.com/
+ * @package Ding\Bean\Lifecycle
  */
-interface ILifecycleListener
-{
-
-
+interface ILifecycleListener {
 }

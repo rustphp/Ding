@@ -2,8 +2,6 @@
 /**
  * Interface for a AfterAssemble lifecycle event.
  *
- * PHP Version 5
- *
  * @category   Ding
  * @package    Bean
  * @subpackage Lifecycle
@@ -33,16 +31,12 @@ use Ding\Bean\BeanDefinition;
 /**
  * Interface for a AfterAssemble lifecycle event.
  *
- * PHP Version 5
- *
- * @category   Ding
- * @package    Bean
- * @subpackage Lifecycle
- * @author     Marcelo Gornstein <marcelog@gmail.com>
- * @license    http://marcelog.github.com/ Apache License 2.0
- * @link       http://marcelog.github.com/
+ * @package Ding\Bean\Lifecycle
  */
-interface IAfterAssembleListener extends ILifecycleListener
-{
-    public function afterAssemble($bean, BeanDefinition $beanDefinition);
+interface IAfterAssembleListener extends ILifecycleListener {
+    /**
+     * @param                $bean
+     * @param BeanDefinition $beanDefinition
+     */
+    public function afterAssemble($bean, BeanDefinition $beanDefinition):void;
 }

@@ -2,8 +2,6 @@
 /**
  * This driver will search for @Required setter methods.
  *
- * PHP Version 5
- *
  * @category   Ding
  * @package    Bean
  * @subpackage Factory.Driver
@@ -28,61 +26,53 @@
  */
 namespace Ding\Bean\Factory\Driver;
 
-use Ding\Reflection\IReflectionFactoryAware;
-use Ding\Bean\Factory\Exception\BeanFactoryException;
-use Ding\Bean\BeanPropertyDefinition;
-use Ding\Bean\Lifecycle\IAfterDefinitionListener;
 use Ding\Bean\BeanDefinition;
+use Ding\Bean\Factory\Exception\BeanFactoryException;
+use Ding\Bean\Lifecycle\IAfterDefinitionListener;
 use Ding\Reflection\IReflectionFactory;
+use Ding\Reflection\IReflectionFactoryAware;
 
 /**
  * This driver will search for @Required setter methods.
  *
- * PHP Version 5
- *
- * @category   Ding
- * @package    Bean
- * @subpackage Factory.Driver
- * @author     Marcelo Gornstein <marcelog@gmail.com>
- * @license    http://marcelog.github.com/ Apache License 2.0
- * @link       http://marcelog.github.com/
+ * @package Ding\Bean\Factory\Driver
  */
-class AnnotationRequiredDriver implements IAfterDefinitionListener, IReflectionFactoryAware
-{
+class AnnotationRequiredDriver implements IAfterDefinitionListener, IReflectionFactoryAware {
     /**
      * A ReflectionFactory implementation.
+     *
      * @var IReflectionFactory
      */
     protected $reflectionFactory;
 
     /**
-     * (non-PHPdoc)
-     * @see Ding\Reflection.IReflectionFactoryAware::setReflectionFactory()
+     * @param IReflectionFactory $reflectionFactory
      */
-    public function setReflectionFactory(IReflectionFactory $reflectionFactory)
-    {
-        $this->reflectionFactory = $reflectionFactory;
+    public function setReflectionFactory(IReflectionFactory $reflectionFactory):void {
+        $this->reflectionFactory=$reflectionFactory;
     }
+
     /**
-     * (non-PHPdoc)
-     * @see Ding\Bean\Lifecycle.IAfterDefinitionListener::afterDefinition()
+     * @param BeanDefinition $bean
+     *
+     * @return BeanDefinition
+     * @throws BeanFactoryException
      */
-    public function afterDefinition(BeanDefinition $bean)
-    {
-        $class = $bean->getClass();
-        $rClass = $this->reflectionFactory->getClass($class);
-        $annotations = $this->reflectionFactory->getClassAnnotations($class);
-        $props = $bean->getProperties();
+    public function afterDefinition(BeanDefinition $bean) : BeanDefinition {
+        $class=$bean->getClass();
+        $rClass=$this->reflectionFactory->getClass($class);
+        //$annotations=$this->reflectionFactory->getClassAnnotations($class);
+        $props=$bean->getProperties();
         foreach ($rClass->getMethods() as $rMethod) {
-            $methodName = $rMethod->getName();
+            $methodName=$rMethod->getName();
             if (strpos($methodName, 'set') !== 0) {
                 continue;
             }
-            $annotations = $this->reflectionFactory->getMethodAnnotations($class, $methodName);
+            $annotations=$this->reflectionFactory->getMethodAnnotations($class, $methodName);
             if (!$annotations->contains('required')) {
                 continue;
             }
-            $propName = lcfirst(substr($methodName, 3));
+            $propName=lcfirst(substr($methodName, 3));
             if (!isset($props[$propName])) {
                 throw new BeanFactoryException('Missing @Required property: ' . $methodName);
             }

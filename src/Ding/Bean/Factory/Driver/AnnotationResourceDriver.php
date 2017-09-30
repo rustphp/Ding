@@ -2,8 +2,6 @@
 /**
  * This driver will search for @Resource setter methods.
  *
- * PHP Version 5
- *
  * @category   Ding
  * @package    Bean
  * @subpackage Factory.Driver
@@ -28,104 +26,89 @@
  */
 namespace Ding\Bean\Factory\Driver;
 
-use Ding\Logger\ILoggerAware;
-use Ding\Reflection\IReflectionFactory;
-use Ding\Reflection\IReflectionFactoryAware;
-use Ding\Container\IContainerAware;
-use Ding\Container\IContainer;
-use Ding\Bean\Factory\Exception\BeanFactoryException;
+use Ding\Bean\BeanDefinition;
 use Ding\Bean\BeanPropertyDefinition;
 use Ding\Bean\Lifecycle\IAfterDefinitionListener;
-use Ding\Bean\Lifecycle\IAfterCreateListener;
-use Ding\Bean\BeanDefinition;
+use Ding\Container\IContainer;
+use Ding\Container\IContainerAware;
+use Ding\Reflection\IReflectionFactory;
+use Ding\Reflection\IReflectionFactoryAware;
 
 /**
  * This driver will search for @Resource setter methods.
  *
- * PHP Version 5
- *
- * @category   Ding
- * @package    Bean
- * @subpackage Factory.Driver
- * @author     Marcelo Gornstein <marcelog@gmail.com>
- * @license    http://marcelog.github.com/ Apache License 2.0
- * @link       http://marcelog.github.com/
+ * @package Ding\Bean\Factory\Driver
  */
-class AnnotationResourceDriver
-    implements IAfterDefinitionListener, IContainerAware, IReflectionFactoryAware
-{
+class AnnotationResourceDriver implements IAfterDefinitionListener, IContainerAware, IReflectionFactoryAware {
     /**
      * Container.
+     *
      * @var IContainer
      */
-    private $_container;
-
+    private $container;
     /**
      * A ReflectionFactory implementation.
+     *
      * @var IReflectionFactory
      */
     protected $reflectionFactory;
 
     /**
-     * (non-PHPdoc)
-     * @see Ding\Reflection.IReflectionFactoryAware::setReflectionFactory()
+     * @param IReflectionFactory $reflectionFactory
+     * @see \Ding\Reflection\IReflectionFactoryAware::setReflectionFactory()
      */
-    public function setReflectionFactory(IReflectionFactory $reflectionFactory)
-    {
-        $this->reflectionFactory = $reflectionFactory;
+    public function setReflectionFactory(IReflectionFactory $reflectionFactory) : void {
+        $this->reflectionFactory=$reflectionFactory;
     }
 
     /**
-     * (non-PHPdoc)
-     * @see Ding\Container.IContainerAware::setContainer()
+     * @param IContainer $container
+     *
+     * @see \Ding\Container\IContainerAware::setContainer()
      */
-    public function setContainer(IContainer $container)
-    {
-        $this->_container = $container;
+    public function setContainer(IContainer $container) : void {
+        $this->container=$container;
     }
 
     /**
-     * (non-PHPdoc)
-     * @see Ding\Bean\Lifecycle.IAfterDefinitionListener::afterDefinition()
+     * @param BeanDefinition $bean
+     *
+     * @return BeanDefinition
+     * @see \Ding\Bean\Lifecycle\IAfterDefinitionListener::afterDefinition()
      */
-    public function afterDefinition(BeanDefinition $bean)
-    {
-        $class = $bean->getClass();
-        $rClass = $this->reflectionFactory->getClass($class);
-        $properties = $bean->getProperties();
+    public function afterDefinition(BeanDefinition $bean) : BeanDefinition {
+        $class=$bean->getClass();
+        $rClass=$this->reflectionFactory->getClass($class);
+        $properties=$bean->getProperties();
         foreach ($rClass->getMethods() as $method) {
-            $methodName = $method->getName();
+            $methodName=$method->getName();
             if (strpos($methodName, 'set') !== 0) {
                 continue;
             }
-            $annotations = $this->reflectionFactory->getMethodAnnotations($class, $methodName);
+            $annotations=$this->reflectionFactory->getMethodAnnotations($class, $methodName);
             if (!$annotations->contains('resource')) {
                 continue;
             }
-            $propName = lcfirst(substr($methodName, 3));
-            $name = $propName;
-            $annotation = $annotations->getSingleAnnotation('resource');
+            $propName=lcfirst(substr($methodName, 3));
+            $name=$propName;
+            $annotation=$annotations->getSingleAnnotation('resource');
             if ($annotation->hasOption('name')) {
-                $name = $annotation->getOptionSingleValue('name');
+                $name=$annotation->getOptionSingleValue('name');
             }
-            $properties[$propName] = new BeanPropertyDefinition(
-                $propName, BeanPropertyDefinition::PROPERTY_BEAN, $name
-            );
+            $properties[$propName]=new BeanPropertyDefinition($propName, BeanPropertyDefinition::PROPERTY_BEAN, $name);
         }
         foreach ($rClass->getProperties() as $property) {
-            $propertyName = $property->getName();
-            $annotations = $this->reflectionFactory->getPropertyAnnotations($class, $propertyName);
+            $propertyName=$property->getName();
+            $annotations=$this->reflectionFactory->getPropertyAnnotations($class, $propertyName);
             if (!$annotations->contains('resource')) {
                 continue;
             }
-            $annotation = $annotations->getSingleAnnotation('resource');
-            $name = $propertyName;
+            $annotation=$annotations->getSingleAnnotation('resource');
+            $name=$propertyName;
             if ($annotation->hasOption('name')) {
-                $name = $annotation->getOptionSingleValue('name');
+                $name=$annotation->getOptionSingleValue('name');
             }
-            $properties[$propertyName] = new BeanPropertyDefinition(
-                $propertyName, BeanPropertyDefinition::PROPERTY_BEAN, $name
-            );
+            $properties[$propertyName]=new BeanPropertyDefinition($propertyName, BeanPropertyDefinition::PROPERTY_BEAN, $name);
         }
         $bean->setProperties($properties);
         return $bean;

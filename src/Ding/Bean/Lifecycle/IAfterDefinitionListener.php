@@ -2,8 +2,6 @@
 /**
  * Interface for a AfterDefinition lifecycle event.
  *
- * PHP Version 5
- *
  * @category   Ding
  * @package    Bean
  * @subpackage Lifecycle
@@ -33,16 +31,13 @@ use Ding\Bean\BeanDefinition;
 /**
  * Interface for a AfterDefinition lifecycle event.
  *
- * PHP Version 5
- *
- * @category   Ding
- * @package    Bean
- * @subpackage Lifecycle
- * @author     Marcelo Gornstein <marcelog@gmail.com>
- * @license    http://marcelog.github.com/ Apache License 2.0
- * @link       http://marcelog.github.com/
+ * @package Ding\Bean\Lifecycle
  */
-interface IAfterDefinitionListener extends ILifecycleListener
-{
-    public function afterDefinition(BeanDefinition $bean);
+interface IAfterDefinitionListener extends ILifecycleListener {
+    /**
+     * @param BeanDefinition $bean
+     *
+     * @return BeanDefinition
+     */
+    public function afterDefinition(BeanDefinition $bean) : BeanDefinition;
 }

@@ -1,7 +1,6 @@
 <?php
 /**
  *
- * PHP Version 5
  *
  * @category   Ding
  * @package    Bean
@@ -27,73 +26,59 @@
  */
 namespace Ding\Bean\Factory\Driver;
 
-use Ding\Reflection\IReflectionFactoryAware;
-use Ding\Bean\IBeanDefinitionProvider;
+use Ding\Bean\Lifecycle\IAfterConfigListener;
+use Ding\Container\IContainer;
 use Ding\Container\IContainerAware;
 use Ding\Mvc\Http\HttpUrlMapper;
-use Ding\Bean\Lifecycle\IAfterConfigListener;
-use Ding\Bean\BeanDefinition;
-use Ding\Container\IContainer;
 use Ding\Reflection\IReflectionFactory;
+use Ding\Reflection\IReflectionFactoryAware;
 
 /**
+ * Class MvcAnnotationDriver
  *
- * PHP Version 5
- *
- * @category   Ding
- * @package    Bean
- * @subpackage Factory.Driver
- * @author     Marcelo Gornstein <marcelog@gmail.com>
- * @license    http://marcelog.github.com/ Apache License 2.0
- * @link       http://marcelog.github.com/
+ * @package Ding\Bean\Factory\Driver
  */
-class MvcAnnotationDriver
-    implements IAfterConfigListener, IContainerAware, IReflectionFactoryAware
-{
+class MvcAnnotationDriver implements IAfterConfigListener, IContainerAware, IReflectionFactoryAware {
     /**
      * Container.
+     *
      * @var IContainer
      */
-    private $_container;
+    private $container;
     /**
      * A ReflectionFactory implementation.
+     *
      * @var IReflectionFactory
      */
     protected $reflectionFactory;
 
     /**
-     * (non-PHPdoc)
-     * @see Ding\Reflection.IReflectionFactoryAware::setReflectionFactory()
+     * @param IReflectionFactory $reflectionFactory
      */
-    public function setReflectionFactory(IReflectionFactory $reflectionFactory)
-    {
-        $this->reflectionFactory = $reflectionFactory;
+    public function setReflectionFactory(IReflectionFactory $reflectionFactory) : void {
+        $this->reflectionFactory=$reflectionFactory;
     }
+
     /**
-     * (non-PHPdoc)
-     * @see Ding\Container.IContainerAware::setContainer()
+     * @param IContainer $container
      */
-    public function setContainer(IContainer $container)
-    {
-        $this->_container = $container;
+    public function setContainer(IContainer $container) : void {
+        $this->container=$container;
     }
+
     /**
      * Will call HttpUrlMapper::addAnnotatedController to add new mappings
      * from the @Controller annotated classes. Also, creates a new bean
      * definition for every one of them.
-     *
-     * (non-PHPdoc)
-     * @see Ding\Bean\Lifecycle.ILifecycleListener::afterConfig()
      */
-    public function afterConfig()
-    {
+    public function afterConfig() : void {
         foreach ($this->reflectionFactory->getClassesByAnnotation('controller') as $controller) {
-            foreach ($this->_container->getBeansByClass($controller) as $name) {
-                $annotations = $this->reflectionFactory->getClassAnnotations($controller);
+            foreach ($this->container->getBeansByClass($controller) as $name) {
+                $annotations=$this->reflectionFactory->getClassAnnotations($controller);
                 if (!$annotations->contains('requestmapping')) {
                     continue;
                 }
-                $requestMappings = $annotations->getAnnotations('requestmapping');
+                $requestMappings=$annotations->getAnnotations('requestmapping');
                 foreach ($requestMappings as $map) {
                     if ($map->hasOption('url')) {
                         foreach ($map->getOptionValues('url') as $url) {

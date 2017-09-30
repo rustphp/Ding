@@ -2,8 +2,6 @@
 /**
  * This driver will search for annotations.
  *
- * PHP Version 5
- *
  * @category   Ding
  * @package    Bean
  * @subpackage Factory.Driver
@@ -28,56 +26,69 @@
  */
 namespace Ding\Bean\Factory\Driver;
 
+use Ding\Cache\ICache;
 use Ding\Reflection\IReflectionFactory;
 use Ding\Reflection\IReflectionFactoryAware;
-use Ding\Cache\ICache;
-
 
 /**
  * This driver will search for annotations.
  *
- * PHP Version 5
- *
- * @category   Ding
- * @package    Bean
- * @subpackage Factory.Driver
- * @author     Marcelo Gornstein <marcelog@gmail.com>
- * @license    http://marcelog.github.com/ Apache License 2.0
- * @link       http://marcelog.github.com/
+ * @package Ding\Bean\Factory\Driver
  */
-class AnnotationDiscovererDriver implements IReflectionFactoryAware
-{
+class AnnotationDiscovererDriver implements IReflectionFactoryAware {
     /**
      * A ReflectionFactory implementation.
+     *
      * @var IReflectionFactory
      */
-    private $_reflectionFactory;
-
+    private $reflectionFactory;
     /**
      * Annotations cache.
+     *
      * @var ICache
      */
-    private $_cache;
+    private $cache;
+    /**
+     * @var array
+     */
+    private $directories;
+
+    /**
+     * AnnotationDiscovererDriver constructor.
+     *
+     * @param array $directories
+     */
+    public function __construct(array $directories) {
+        $this->directories=$directories;
+    }
+
+    public function parse() : void {
+        foreach ($this->directories as $dir) {
+            $classesPerFile=$this->getClassesFromDirectory($dir);
+            foreach ($classesPerFile as $file=>$classes) {
+                foreach ($classes as $class) {
+                    $this->reflectionFactory->getClassAnnotations($class);
+                }
+            }
+        }
+    }
 
     /**
      * Sets annotations cache.
      *
-     * @param Ding\Cache\ICache $cache
-     *
-     * @return void
+     * @param ICache $cache
      */
-    public function setCache(ICache $cache)
-    {
-        $this->_cache = $cache;
+    public function setCache(ICache $cache) : void {
+        $this->cache=$cache;
     }
 
     /**
-     * (non-PHPdoc)
-     * @see Ding\Reflection.IReflectionFactoryAware::setReflectionFactory()
+     * @param IReflectionFactory $reflectionFactory
+     *
+     * @see \Ding\Reflection\IReflectionFactoryAware::setReflectionFactory()
      */
-    public function setReflectionFactory(IReflectionFactory $reflectionFactory)
-    {
-        $this->_reflectionFactory = $reflectionFactory;
+    public function setReflectionFactory(IReflectionFactory $reflectionFactory) : void {
+        $this->reflectionFactory=$reflectionFactory;
     }
 
     /**
@@ -87,78 +98,87 @@ class AnnotationDiscovererDriver implements IReflectionFactoryAware
      *
      * @return string[]
      */
-    private function _getCandidateFilesForClassScanning($path)
-    {
-        $cacheKey = "$path.candidatefiles";
-        $result = false;
-        $files = $this->_cache->fetch($cacheKey, $result);
+    private function getCandidateFiles(string $path) : array {
+        $cacheKey="$path.candidateFiles";
+        $result=false;
+        $files=$this->cache->fetch($cacheKey, $result);
         if ($result === true) {
             return $files;
         }
-        $files = array();
+        $files=[];
         if (is_dir($path)) {
             foreach (scandir($path) as $entry) {
                 if ($entry == '.' || $entry == '..') {
                     continue;
                 }
-                $entry = "$path/$entry";
-                foreach ($this->_getCandidateFilesForClassScanning($entry) as $file) {
-                    $files[] = $file;
+                $entry="$path/$entry";
+                foreach ($this->getCandidateFiles($entry) as $file) {
+                    $files[]=$file;
                 }
             }
-        } else if ($this->_isScannable($path)) {
-            $files[] = realpath($path);
+        } else if ($this->isScannable($path)) {
+            $files[]=realpath($path);
         }
-        $this->_cache->store($cacheKey, $files);
+        $this->cache->store($cacheKey, $files);
         return $files;
     }
 
-    private function _getClassesFromFile($file)
-    {
-        $cacheKey = "$file.classesinfile";
-        $result = false;
-        $classes = $this->_cache->fetch($cacheKey, $result);
+    /**
+     * @param string $file
+     *
+     * @return array
+     */
+    private function getClassesFromFile(string $file) : array {
+        $cacheKey="$file.classesInFile";
+        $result=false;
+        $classes=$this->cache->fetch($cacheKey, $result);
         if ($result === true) {
             return $classes;
         }
-        $classes = array_merge(get_declared_classes(), get_declared_interfaces());
+        $classes=array_merge(get_declared_classes(), get_declared_interfaces());
         require_once $file;
-        $newClasses = array_diff(array_merge(get_declared_classes(), get_declared_interfaces()), $classes);
+        $newClasses=array_diff(array_merge(get_declared_classes(), get_declared_interfaces()), $classes);
         if (empty($newClasses)) {
             foreach ($classes as $class) {
-                $rClass = $this->_reflectionFactory->getClass($class);
+                $rClass=$this->reflectionFactory->getClass($class);
                 if ($rClass->getFileName() == $file) {
-                    $newClasses[] = $rClass->getName();
+                    $newClasses[]=$rClass->getName();
                 }
             }
         }
-        $this->_cache->store($cacheKey, $newClasses);
+        $this->cache->store($cacheKey, $newClasses);
         return $newClasses;
     }
 
-    private function _getClassesFromDirectory($dir)
-    {
-        $cacheKey = "$dir.classesindir";
-        $result = false;
-        $classes = $this->_cache->fetch($cacheKey, $result);
+    /**
+     * @param string $dir
+     *
+     * @return array
+     */
+    private function getClassesFromDirectory(string $dir) : array {
+        $cacheKey="$dir.classesInDir";
+        $result=false;
+        $classes=$this->cache->fetch($cacheKey, $result);
         if ($result === true) {
             return $classes;
         }
-        $classes = array();
-        foreach ($this->_getCandidateFilesForClassScanning($dir) as $file) {
-            $classes[$file] = $this->_getClassesFromFile($file);
+        $classes=[];
+        foreach ($this->getCandidateFiles($dir) as $file) {
+            $classes[$file]=$this->getClassesFromFile($file);
         }
-        $this->_cache->store($cacheKey, $classes);
+        $this->cache->store($cacheKey, $classes);
         return $classes;
     }
+
     /**
      * Returns true if the given filesystem entry is interesting to scan.
      *
      * @param string $path Filesystem entry.
+     *
+     * @return bool
      */
-    private function _isScannable($path)
-    {
-        $extensionPos = strrpos($path, '.');
+    private function isScannable(string $path) : bool {
+        $extensionPos=strrpos($path, '.');
         if ($extensionPos === false) {
             return false;
         }
@@ -166,22 +186,5 @@ class AnnotationDiscovererDriver implements IReflectionFactoryAware
             return false;
         }
         return true;
-    }
-
-    public function parse()
-    {
-        foreach ($this->_directories as $dir) {
-            $classesPerFile = $this->_getClassesFromDirectory($dir);
-            foreach ($classesPerFile as $file => $classes) {
-                foreach ($classes as $class) {
-                    $this->_reflectionFactory->getClassAnnotations($class);
-                }
-            }
-        }
-    }
-
-    public function __construct(array $directories)
-    {
-        $this->_directories = $directories;
     }
 }

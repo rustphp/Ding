@@ -2,8 +2,6 @@
 /**
  * Interface for a AfterConfig lifecycle event.
  *
- * PHP Version 5
- *
  * @category   Ding
  * @package    Bean
  * @subpackage Lifecycle
@@ -31,16 +29,8 @@ namespace Ding\Bean\Lifecycle;
 /**
  * Interface for a AfterConfig lifecycle event.
  *
- * PHP Version 5
- *
- * @category   Ding
- * @package    Bean
- * @subpackage Lifecycle
- * @author     Marcelo Gornstein <marcelog@gmail.com>
- * @license    http://marcelog.github.com/ Apache License 2.0
- * @link       http://marcelog.github.com/
+ * @package Ding\Bean\Lifecycle
  */
-interface IAfterConfigListener extends ILifecycleListener
-{
-    public function afterConfig();
+interface IAfterConfigListener extends ILifecycleListener {
+    public function afterConfig():void;
 }

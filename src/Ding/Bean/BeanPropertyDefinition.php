@@ -2,8 +2,6 @@
 /**
  * Bean property definition.
  *
- * PHP Version 5
- *
  * @category Ding
  * @package  Bean
  * @author   Marcelo Gornstein <marcelog@gmail.com>
@@ -26,71 +24,63 @@
  *
  */
 namespace Ding\Bean;
-
 /**
  * Bean property definition.
  *
- * PHP Version 5
- *
- * @category Ding
- * @package  Bean
- * @author   Marcelo Gornstein <marcelog@gmail.com>
- * @license  http://marcelog.github.com/ Apache License 2.0
- * @link     http://marcelog.github.com/
+ * @package Ding\Bean
  */
-class BeanPropertyDefinition
-{
+class BeanPropertyDefinition {
     /**
      * This constant represents a property that is an integer, string, or any
      * other native type.
+     *
      * @var integer
      */
-    const PROPERTY_SIMPLE = 0;
-
+    const PROPERTY_SIMPLE=0;
     /**
      * This constant represents a property that is another bean.
+     *
      * @var integer
      */
-    const PROPERTY_BEAN = 1;
-
+    const PROPERTY_BEAN=1;
     /**
      * This constant represents a property that is an array.
+     *
      * @var integer
      */
-    const PROPERTY_ARRAY = 2;
-
+    const PROPERTY_ARRAY=2;
     /**
      * This constant represents a property that is php code to be evaluated.
+     *
      * @var integer
      */
-    const PROPERTY_CODE = 3;
-
+    const PROPERTY_CODE=3;
     /**
      * Property name
+     *
      * @var string
      */
-    private $_name;
-
+    private $name;
     /**
      * Property value (in the case of a bean property, this is the bean name).
-     * @var string
+     *
+     * @var string|array
      */
-    private $_value;
-
+    private $value;
     /**
      * Property type (see this class constants)
+     *
      * @var string
      */
-    private $_type;
+    private $type;
 
     /**
      * Returns true if this property is a reference to another bean.
      *
      * @return boolean
      */
-    public function isBean()
-    {
-        return $this->_type == self::PROPERTY_BEAN;
+    public function isBean() : bool {
+        return $this->type === static::PROPERTY_BEAN;
     }
 
     /**
@@ -98,9 +88,8 @@ class BeanPropertyDefinition
      *
      * @return boolean
      */
-    public function isCode()
-    {
-        return $this->_type == self::PROPERTY_CODE;
+    public function isCode() : bool {
+        return $this->type === static::PROPERTY_CODE;
     }
 
     /**
@@ -108,19 +97,17 @@ class BeanPropertyDefinition
      *
      * @return boolean
      */
-    public function isArray()
-    {
-        return $this->_type == self::PROPERTY_ARRAY;
+    public function isArray() : bool {
+        return $this->type === static::PROPERTY_ARRAY;
     }
 
     /**
      * Returns property value (or bean name in the case of a bean property).
      *
-     * @return string
+     * @return string|array
      */
-    public function getValue()
-    {
-        return $this->_value;
+    public function getValue() {
+        return $this->value;
     }
 
     /**
@@ -128,24 +115,20 @@ class BeanPropertyDefinition
      *
      * @return string
      */
-    public function getName()
-    {
-        return $this->_name;
+    public function getName() : string {
+        return $this->name;
     }
 
     /**
      * Constructor.
      *
-     * @param string  $name  Target property name.
-     * @param integer $type  Target property type (See this class constants).
-     * @param string  $value Target property value.
-     *
-     * @return void
+     * @param string       $name  Target property name.
+     * @param int          $type  Target property type (See this class constants).
+     * @param string|array $value Target property value.
      */
-    public function __construct($name, $type, $value)
-    {
-        $this->_name = $name;
-        $this->_type = $type;
-        $this->_value = $value;
+    public function __construct(string $name, int $type, $value) {
+        $this->name=$name;
+        $this->type=$type;
+        $this->value=$value;
     }
 }

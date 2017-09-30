@@ -3,8 +3,6 @@
  * Whenever the container instantiates a bean which class implements this
  * interface, it will be injected with the bean name.
  *
- * PHP Version 5
- *
  * @category Ding
  * @package  Bean
  * @author   Marcelo Gornstein <marcelog@gmail.com>
@@ -27,21 +25,13 @@
  *
  */
 namespace Ding\Bean;
-
 /**
  * Whenever the container instantiates a bean which class implements this
  * interface, it will be injected with the bean name.
  *
- * PHP Version 5
- *
- * @category Ding
- * @package  Bean
- * @author   Marcelo Gornstein <marcelog@gmail.com>
- * @license  http://marcelog.github.com/ Apache License 2.0
- * @link     http://marcelog.github.com/
+ * @package Ding\Bean
  */
-interface IBeanNameAware
-{
+interface IBeanNameAware {
     /**
      * Called by the container to inject the bean name.
      *
@@ -49,5 +39,5 @@ interface IBeanNameAware
      *
      * @return void
      */
-    public function setBeanName($name);
+    public function setBeanName(string $name) : void;
 }

@@ -2,8 +2,6 @@
 /**
  * Thrown when injection by type cant be done.
  *
- * PHP Version 5
- *
  * @category   Ding
  * @package    Bean
  * @subpackage Factory.Exception
@@ -27,23 +25,20 @@
  *
  */
 namespace Ding\Bean\Factory\Exception;
-
 /**
  * Thrown when injection by type cant be done.
  *
- * PHP Version 5
- *
- * @category   Ding
- * @package    Bean
- * @subpackage Factory.Exception
- * @author     Marcelo Gornstein <marcelog@gmail.com>
- * @license    http://marcelog.github.com/ Apache License 2.0
- * @link       http://marcelog.github.com/
+ * @package Ding\Bean\Factory\Exception
  */
-class InjectByTypeException extends BeanFactoryException
-{
-    public function __construct($propertyName, $propertyType, $message)
-    {
+class InjectByTypeException extends BeanFactoryException {
+    /**
+     * InjectByTypeException constructor.
+     *
+     * @param string $propertyName
+     * @param string $propertyType
+     * @param string $message
+     */
+    public function __construct(string $propertyName, string $propertyType, string $message) {
         parent::__construct("Cant inject by type $propertyName ($propertyType): $message");
     }
 }

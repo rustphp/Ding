@@ -2,8 +2,6 @@
 /**
  * A collection of annotations.
  *
- * PHP Version 5
- *
  * @category   Ding
  * @package    Annotation
  * @author     Marcelo Gornstein <marcelog@gmail.com>
@@ -32,55 +30,74 @@ use Ding\Annotation\Exception\AnnotationException;
 /**
  * A collection of annotations.
  *
- * PHP Version 5
- *
- * @category   Ding
- * @package    Annotation
- * @author     Marcelo Gornstein <marcelog@gmail.com>
- * @license    http://marcelog.github.com/ Apache License 2.0
- * @link       http://marcelog.github.com/
+ * @package Ding\Annotation
  */
-class Collection
-{
-    private $_annotations = array();
+class Collection {
+    /**
+     * @var array $annotations
+     */
+    private $annotations=[];
 
-    public function __sleep()
-    {
-        return array('_annotations');
+    /**
+     * @return array
+     */
+    public function __sleep() {
+        return ['annotations'];
     }
 
-    public function contains($name)
-    {
-        $name = strtolower($name);
-        return isset($this->_annotations[$name]);
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function contains(string $name):bool {
+        $name=strtolower($name);
+        return isset($this->annotations[$name]);
     }
 
-    public function getAll()
-    {
-        return $this->_annotations;
+    /**
+     * @return array
+     */
+    public function getAll():array {
+        return $this->annotations;
     }
 
-    public function getSingleAnnotation($name)
-    {
-        $annotations = $this->getAnnotations($name);
-        return array_shift($annotations);
+    /**
+     * @param string $name
+     *
+     * @return null|Annotation
+     */
+    public function getSingleAnnotation(string $name) :?Annotation {
+        $annotations=$this->getAnnotations($name);
+        $annotation=array_shift($annotations);
+        if ($annotation instanceof Annotation) {
+            return $annotation;
+        }
+        return null;
     }
 
-    public function getAnnotations($name)
-    {
-        $name = strtolower($name);
+    /**
+     * @param string $name
+     *
+     * @return Annotation[]
+     * @throws AnnotationException
+     */
+    public function getAnnotations(string $name) : array {
+        $name=strtolower($name);
         if ($this->contains($name)) {
-            return $this->_annotations[$name];
+            return $this->annotations[$name];
         }
         throw new AnnotationException("Unknown annotation: $name");
     }
 
-    public function add(Annotation $annotation)
-    {
-        $name = strtolower($annotation->getName());
+    /**
+     * @param Annotation $annotation
+     */
+    public function add(Annotation $annotation) : void {
+        $name=strtolower($annotation->getName());
         if (!$this->contains($name)) {
-            $this->_annotations[$name] = array();
+            $this->annotations[$name]=[];
         }
-        $this->_annotations[$name][] = $annotation;
+        $this->annotations[$name][]=$annotation;
     }
 }

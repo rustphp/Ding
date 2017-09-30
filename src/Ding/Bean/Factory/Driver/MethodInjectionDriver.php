@@ -2,8 +2,6 @@
 /**
  * This driver will take care of the method injection.
  *
- * PHP Version 5
- *
  * @category   Ding
  * @package    Bean
  * @subpackage Factory.Driver
@@ -28,171 +26,99 @@
  */
 namespace Ding\Bean\Factory\Driver;
 
-use Ding\Bean\IBeanDefinitionProvider;
-use Ding\Aspect\IAspectManagerAware;
-use Ding\Bean\Lifecycle\IAfterDefinitionListener;
-use Ding\Container\IContainerAware;
-use Ding\Container\IContainer;
-use Ding\Aspect\PointcutDefinition;
-use Ding\Bean\BeanPropertyDefinition;
-use Ding\Aspect\AspectManager;
-use Ding\Aspect\MethodInvocation;
 use Ding\Aspect\AspectDefinition;
+use Ding\Aspect\AspectManager;
+use Ding\Aspect\IAspectManagerAware;
+use Ding\Aspect\PointcutDefinition;
 use Ding\Bean\BeanDefinition;
-
-/**
- * An "inner" class. This is the aspect that runs when the method is called.
- * Enter description here ...
- *
- * PHP Version 5
- *
- * @category   Ding
- * @package    Bean
- * @subpackage Factory.Driver
- * @author     Marcelo Gornstein <marcelog@gmail.com>
- * @license    http://marcelog.github.com/ Apache License 2.0
- * @link       http://marcelog.github.com/
- */
-class MethodInjectionAspect implements IContainerAware
-{
-    /**
-     * Container.
-     * @var IContainer
-     */
-    private $_container;
-
-    /**
-     * Bean to generate.
-     * @var string
-     */
-    private $_beanName;
-
-    /**
-     * Setter injection for bean name.
-     *
-     * @param string $beanName Bean name.
-     *
-     * @return void
-     */
-    public function setBeanName($beanName)
-    {
-        $this->_beanName = $beanName;
-    }
-
-    /**
-     * (non-PHPdoc)
-     * @see Ding\Container.IContainerAware::setContainer()
-     */
-    public function setContainer(IContainer $container)
-    {
-        $this->_container = $container;
-    }
-
-    /**
-     * Creates a new bean (prototypes).
-     *
-     * @param MethodInvocation $invocation The call.
-     *
-     * @return object
-     */
-    public function invoke(MethodInvocation $invocation)
-    {
-        return $this->_container->getBean($this->_beanName);
-    }
-}
+use Ding\Bean\BeanPropertyDefinition;
+use Ding\Bean\IBeanDefinitionProvider;
+use Ding\Bean\Lifecycle\IAfterDefinitionListener;
+use Ding\Container\IContainer;
+use Ding\Container\IContainerAware;
 
 /**
  * This driver will take care of the method injection.
  *
- * PHP Version 5
- *
- * @category   Ding
- * @package    Bean
- * @subpackage Factory.Driver
- * @author     Marcelo Gornstein <marcelog@gmail.com>
- * @license    http://marcelog.github.com/ Apache License 2.0
- * @link       http://marcelog.github.com/
+ * @package Ding\Bean\Factory\Driver
  */
-class MethodInjectionDriver
-    implements IAfterDefinitionListener, IAspectManagerAware,
-    IContainerAware, IBeanDefinitionProvider
-{
-    private $_aspectManager;
-    private $_beans = array();
+class MethodInjectionDriver implements IAfterDefinitionListener, IAspectManagerAware, IContainerAware, IBeanDefinitionProvider {
+    /**
+     * @var AspectManager
+     */
+    private $aspectManager;
+    private $beans=[];
     /**
      * Container.
+     *
      * @var IContainer
      */
-    private $_container;
+    private $container;
 
     /**
-     * (non-PHPdoc)
-     * @see Ding\Container.IContainerAware::setContainer()
+     * @param IContainer $container
      */
-    public function setContainer(IContainer $container)
-    {
-        $this->_container = $container;
+    public function setContainer(IContainer $container) {
+        $this->container=$container;
     }
 
     /**
-     * (non-PHPdoc)
-     * @see Ding\Bean.IBeanDefinitionProvider::getBeanDefinition()
+     * @param string $name
+     *
+     * @return BeanDefinition|null
      */
-    public function getBeanDefinition($name)
-    {
-        if (isset($this->_beans[$name])) {
-            return $this->_beans[$name];
-        }
+    public function getBeanDefinition(string $name) :?BeanDefinition {
+        return ($this->beans[$name] ?? null);
     }
 
     /**
-     * (non-PHPdoc)
-     * @see Ding\Bean.IBeanDefinitionProvider::getBeanDefinitionByClass()
+     * @param string $class
+     *
+     * @return array
      */
-    public function getBeansByClass($class)
-    {
-        return array();
-    }
-    /**
-     * (non-PHPdoc)
-     * @see Ding\Bean.IBeanDefinitionProvider::getBeansListeningOn()
-     */
-    public function getBeansListeningOn($eventName)
-    {
-        return array();
+    public function getBeansByClass(string $class) : array {
+        return [];
     }
 
     /**
-     * (non-PHPdoc)
-     * @see Ding\Bean\Lifecycle.IAfterDefinitionListener::afterDefinition()
+     * @param string $eventName
+     *
+     * @return array
      */
-    public function afterDefinition(BeanDefinition $bean)
-    {
+    public function getBeansListeningOn(string $eventName) : array {
+        return [];
+    }
+
+    /**
+     * @param BeanDefinition $bean
+     *
+     * @return BeanDefinition
+     */
+    public function afterDefinition(BeanDefinition $bean) : BeanDefinition {
         foreach ($bean->getMethodInjections() as $method) {
-            $aspectBeanName = BeanDefinition::generateName('MethodInjectionAspect');
-            $aspectBean = new BeanDefinition($aspectBeanName);
+            $aspectBeanName=BeanDefinition::generateName('MethodInjectionAspect');
+            $aspectBean=new BeanDefinition($aspectBeanName);
             $aspectBean->setClass('\\Ding\\Bean\\Factory\\Driver\\MethodInjectionAspect');
-            $aspectBean->setProperties(array(
+            $aspectBean->setProperties([
                 new BeanPropertyDefinition('beanName', BeanPropertyDefinition::PROPERTY_SIMPLE, $method[1])
-            ));
-            $this->_beans[$aspectBeanName] = $aspectBean;
-            $aspectName = BeanDefinition::generateName('MethodInjectionAspect');
-            $pointcutName = BeanDefinition::generateName('MethodInjectionPointcut');
-            $pointcut = new PointcutDefinition($pointcutName, $method[0], 'invoke');
-            $this->_aspectManager->setPointcut($pointcut);
-            $aspect = new AspectDefinition(
-                $aspectName, array($pointcutName),
-                AspectDefinition::ASPECT_METHOD, $aspectBeanName, ''
-            );
-            $aspects = $bean->getAspects();
-            $aspects[] = $aspect;
+            ]);
+            $this->beans[$aspectBeanName]=$aspectBean;
+            $aspectName=BeanDefinition::generateName('MethodInjectionAspect');
+            $pointcutName=BeanDefinition::generateName('MethodInjectionPointcut');
+            $pointcut=new PointcutDefinition($pointcutName, $method[0], 'invoke');
+            $this->aspectManager->setPointcut($pointcut);
+            $aspect=new AspectDefinition($aspectName, [$pointcutName], AspectDefinition::ASPECT_METHOD, $aspectBeanName, '');
+            $aspects=$bean->getAspects();
+            $aspects[]=$aspect;
             $bean->setAspects($aspects);
         }
         return $bean;
     }
 
-    public function setAspectManager(AspectManager $aspectManager)
-    {
-        $this->_aspectManager = $aspectManager;
+    /**
+     * @param AspectManager $aspectManager
+     */
+    public function setAspectManager(AspectManager $aspectManager) : void {
+        $this->aspectManager=$aspectManager;
     }
 }

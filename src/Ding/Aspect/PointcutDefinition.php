@@ -2,8 +2,6 @@
 /**
  * A pointcut definition.
  *
- * PHP Version 5
- *
  * @category Ding
  * @package  Aspect
  * @author   Marcelo Gornstein <marcelog@gmail.com>
@@ -26,46 +24,38 @@
  *
  */
 namespace Ding\Aspect;
-
 /**
  * A pointcut definition.
  *
- * PHP Version 5
- *
- * @category Ding
- * @package  Aspect
- * @author   Marcelo Gornstein <marcelog@gmail.com>
- * @license  http://marcelog.github.com/ Apache License 2.0
- * @link     http://marcelog.github.com/
+ * @package Ding\Aspect
  */
-class PointcutDefinition
-{
+class PointcutDefinition {
     /**
      * Pointcut name/id.
+     *
      * @var string
      */
-    private $_name;
-
+    private $name;
     /**
      * Pointcut regular expression.
+     *
      * @var string
      */
-    private $_expression;
-
+    private $expression;
     /**
      * Target method to execute.
-     * @var string
+     *
+     * @var string $method
      */
-    private $_method;
+    private $method;
 
     /**
      * Returns pointcut name.
      *
      * @return string
      */
-    public function getName()
-    {
-        return $this->_name;
+    public function getName() : string {
+        return $this->name;
     }
 
     /**
@@ -75,9 +65,8 @@ class PointcutDefinition
      *
      * @return void
      */
-    public function setName($name)
-    {
-        $this->_name = $name;
+    public function setName(string $name) {
+        $this->name=$name;
     }
 
     /**
@@ -85,21 +74,17 @@ class PointcutDefinition
      *
      * @return string
      */
-    public function getMethod()
-    {
-        return $this->_method;
+    public function getMethod() {
+        return $this->method;
     }
 
     /**
      * Sets the target method.
-	 *
-     * @param string $method Sets the target method to execute.
      *
-     * @return void
+     * @param string $method Sets the target method to execute.
      */
-    public function setMethod($method)
-    {
-        return $this->_method = $method;
+    public function setMethod(string $method) : void {
+        $this->method=$method;
     }
 
     /**
@@ -107,9 +92,8 @@ class PointcutDefinition
      *
      * @return string
      */
-    public function getExpression()
-    {
-        return $this->_expression;
+    public function getExpression() : string {
+        return $this->expression;
     }
 
     /**
@@ -119,9 +103,8 @@ class PointcutDefinition
      *
      * @return void
      */
-    public function setExpression($expression)
-    {
-        $this->_expression= $expression;
+    public function setExpression(string $expression) : void {
+        $this->expression=$expression;
     }
 
     /**
@@ -131,12 +114,10 @@ class PointcutDefinition
      * @param string $expression Pointcut expression.
      * @param string $method     Target method to execute.
      *
-     * @return void
      */
-    public function __construct($name, $expression, $method)
-    {
-        $this->_name = $name;
-        $this->_expression = $expression;
-        $this->_method = $method;
+    public function __construct(string $name, string $expression, string $method) {
+        $this->name=$name;
+        $this->expression=$expression;
+        $this->method=$method;
     }
 }

@@ -2,8 +2,6 @@
 /**
  * This driver will wire by type.
  *
- * PHP Version 5
- *
  * @category   Ding
  * @package    Bean
  * @subpackage Factory.Driver
@@ -28,19 +26,18 @@
  */
 namespace Ding\Bean\Factory\Driver;
 
-use Ding\Bean\BeanConstructorArgumentDefinition;
-
-use Ding\Annotation\Collection;
 use Ding\Annotation\Annotation;
-use Ding\Bean\Factory\Exception\InjectByTypeException;
-use Ding\Bean\BeanPropertyDefinition;
-use Ding\Container\IContainerAware;
-use Ding\Container\IContainer;
+use Ding\Annotation\Collection;
+use Ding\Bean\BeanConstructorArgumentDefinition;
 use Ding\Bean\BeanDefinition;
+use Ding\Bean\BeanPropertyDefinition;
+use Ding\Bean\Factory\Exception\InjectByTypeException;
 use Ding\Bean\Lifecycle\IAfterDefinitionListener;
+use Ding\Container\IContainer;
+use Ding\Container\IContainerAware;
 use Ding\Reflection\IReflectionFactory;
 use Ding\Reflection\IReflectionFactoryAware;
-
+use ReflectionMethod;
 
 /**
  * This driver will wire by type.
@@ -54,74 +51,103 @@ use Ding\Reflection\IReflectionFactoryAware;
  * @license    http://marcelog.github.com/ Apache License 2.0
  * @link       http://marcelog.github.com/
  */
-class AnnotationInjectDriver
-    implements IAfterDefinitionListener, IReflectionFactoryAware, IContainerAware
-{
+class AnnotationInjectDriver implements IAfterDefinitionListener, IReflectionFactoryAware, IContainerAware {
     /**
      * A ReflectionFactory implementation.
+     *
      * @var IReflectionFactory
      */
-    private $_reflectionFactory;
-
+    private $reflectionFactory;
     /**
      * @var IContainer
      */
-    private $_container;
+    private $container;
 
-    private function _inject($name, Annotation $annotation, $class = null, Annotation $named = null)
-    {
-        $ret = false;
-        $required = true;
+    /**
+     * @param BeanDefinition $bean
+     *
+     * @return BeanDefinition
+     */
+    public function afterDefinition(BeanDefinition $bean) : BeanDefinition {
+        $this->injectProperties($bean);
+        $this->injectMethods($bean);
+        $this->injectConstructorArguments($bean);
+        return $bean;
+    }
+
+    /**
+     * @param IContainer $container
+     */
+    public function setContainer(IContainer $container) : void {
+        $this->container=$container;
+    }
+
+    /**
+     * @param IReflectionFactory $reflectionFactory
+     */
+    public function setReflectionFactory(IReflectionFactory $reflectionFactory) : void {
+        $this->reflectionFactory=$reflectionFactory;
+    }
+
+    /**
+     * @param string          $name
+     * @param Annotation      $annotation
+     * @param null            $class
+     * @param Annotation|null $named
+     *
+     * @return array|bool|mixed
+     * @throws InjectByTypeException
+     */
+    private function inject(string $name, Annotation $annotation, $class=null, Annotation $named=null) {
+        $ret=false;
+        $required=true;
         if ($annotation->hasOption('required')) {
-            $required = $annotation->getOptionSinglevalue('required') == 'true';
+            $required=$annotation->getOptionSingleValue('required') == 'true';
         }
         if (!$annotation->hasOption('type')) {
             if ($class === null) {
                 throw new InjectByTypeException($name, 'Unknown', "Missing type= specification");
             }
         } else {
-            $class = $annotation->getOptionSingleValue('type');
+            $class=$annotation->getOptionSingleValue('type');
         }
-        $isArray = strpos(substr($class, -2), "[]") !== false;
+        $isArray=strpos(substr($class, -2), "[]") !== false;
         if ($isArray) {
-            $class = substr($class, 0, -2);
-            $ret = array();
+            $class=substr($class, 0, -2);
+            $ret=[];
         }
-        $candidates = $this->_container->getBeansByClass($class);
+        $candidates=$this->container->getBeansByClass($class);
         if (empty($candidates)) {
             if ($required) {
                 throw new InjectByTypeException($name, $class, "Did not find any candidates for injecting by type");
-            } else {
-                return array();
             }
+            return [];
         }
         if (!$isArray && count($candidates) > 1) {
-            $preferredName = null;
+            $preferredName=null;
             if ($named !== null) {
                 if (!$named->hasOption('name')) {
                     throw new InjectByTypeException($name, 'Unknown', "@Named needs the name= specification");
                 }
-                $preferredName = $named->getOptionSingleValue('name');
+                $preferredName=$named->getOptionSingleValue('name');
             }
             if ($preferredName !== null) {
                 if (in_array($preferredName, $candidates)) {
-                    $candidates = array($preferredName);
+                    $candidates=[$preferredName];
                 } else {
                     throw new InjectByTypeException($name, 'Unknown', "Specified bean name in @Named not found");
                 }
             } else {
-                $foundPrimary = false;
-                $beans = $candidates;
+                $foundPrimary=false;
+                $beans=$candidates;
                 foreach ($beans as $beanName) {
-                    $beanCandidateDef = $this->_container->getBeanDefinition($beanName);
+                    $beanCandidateDef=$this->container->getBeanDefinition($beanName);
                     if ($beanCandidateDef->isPrimaryCandidate()) {
                         if ($foundPrimary) {
-                            throw new InjectByTypeException(
-                                $name, $class, "Too many (primary) candidates for injecting by type"
-                            );
+                            throw new InjectByTypeException($name, $class, "Too many (primary) candidates for injecting by type");
                         }
-                        $foundPrimary = true;
-                        $candidates = array($beanName);
+                        $foundPrimary=true;
+                        $candidates=[$beanName];
                     }
                 }
             }
@@ -129,235 +155,212 @@ class AnnotationInjectDriver
                 throw new InjectByTypeException($name, $class, "Too many candidates for injecting by type");
             }
         }
-
         if ($isArray) {
-            $propertyValue = array();
+            //$propertyValue=[];
             foreach ($candidates as $value) {
-                $ret[] = $value;
+                $ret[]=$value;
             }
         } else {
-            $ret = array_shift($candidates);
+            $ret=array_shift($candidates);
         }
         return $ret;
     }
 
-    private function _arrayToConstructorArguments($name, $beanNames)
-    {
-        $ret = array();
-        $type = BeanConstructorArgumentDefinition::BEAN_CONSTRUCTOR_BEAN;
-        $value = $beanNames;
+    /**
+     * @param string $name
+     * @param        $beanNames
+     *
+     * @return array
+     */
+    private function arrayToConstructorArguments(string $name, $beanNames) : array {
+        $ret=[];
+        $type=BeanConstructorArgumentDefinition::BEAN_CONSTRUCTOR_BEAN;
+        $value=$beanNames;
         if (is_array($beanNames)) {
-            $value = array();
-            $type = BeanConstructorArgumentDefinition::BEAN_CONSTRUCTOR_ARRAY;
+            $value=[];
+            $type=BeanConstructorArgumentDefinition::BEAN_CONSTRUCTOR_ARRAY;
             foreach ($beanNames as $arg) {
-                $value[] = new BeanConstructorArgumentDefinition(
-                    BeanConstructorArgumentDefinition::BEAN_CONSTRUCTOR_BEAN, $arg, $name
-                );
+                $value[]=new BeanConstructorArgumentDefinition(BeanConstructorArgumentDefinition::BEAN_CONSTRUCTOR_BEAN, $arg, $name);
             }
         }
-        $ret[$name] = new BeanConstructorArgumentDefinition($type, $value, $name);
-        return $ret;
-    }
-    private function _arrayToBeanProperties($name, $beanNames)
-    {
-        $ret = array();
-        $propertyName = $name;
-        $propertyValue = $beanNames;
-        $propertyType = BeanPropertyDefinition::PROPERTY_BEAN;
-        if (is_array($beanNames)) {
-            $propertyType = BeanPropertyDefinition::PROPERTY_ARRAY;
-            $propertyValue = array();
-            foreach ($beanNames as $value) {
-                $propertyValue[] = new BeanPropertyDefinition(
-                    $value, BeanPropertyDefinition::PROPERTY_BEAN, $value
-                );
-            }
-        }
-        $ret[$propertyName] = new BeanPropertyDefinition(
-            $propertyName, $propertyType, $propertyValue
-        );
+        $ret[$name]=new BeanConstructorArgumentDefinition($type, $value, $name);
         return $ret;
     }
 
-    private function _injectProperties(BeanDefinition $bean)
-    {
-        $class = $bean->getClass();
-        $rClass = $this->_reflectionFactory->getClass($class);
-        $properties = $bean->getProperties();
+    /**
+     * @param string $name
+     * @param        $beanNames
+     *
+     * @return array
+     */
+    private function arrayToBeanProperties(string $name, $beanNames) : array {
+        $ret=[];
+        $propertyName=$name;
+        $propertyValue=$beanNames;
+        $propertyType=BeanPropertyDefinition::PROPERTY_BEAN;
+        if (is_array($beanNames)) {
+            $propertyType=BeanPropertyDefinition::PROPERTY_ARRAY;
+            $propertyValue=[];
+            foreach ($beanNames as $value) {
+                $propertyValue[]=new BeanPropertyDefinition($value, BeanPropertyDefinition::PROPERTY_BEAN, $value);
+            }
+        }
+        $ret[$propertyName]=new BeanPropertyDefinition($propertyName, $propertyType, $propertyValue);
+        return $ret;
+    }
+
+    /**
+     * @param BeanDefinition $bean
+     */
+    private function injectProperties(BeanDefinition $bean) : void {
+        $class=$bean->getClass();
+        $rClass=$this->reflectionFactory->getClass($class);
+        $properties=$bean->getProperties();
         foreach ($rClass->getProperties() as $property) {
-            $propertyName = $property->getName();
-            $annotations = $this->_reflectionFactory->getPropertyAnnotations($class, $propertyName);
+            $propertyName=$property->getName();
+            $annotations=$this->reflectionFactory->getPropertyAnnotations($class, $propertyName);
             if (!$annotations->contains('inject')) {
                 continue;
             }
-            $namedAnnotation = null;
+            $namedAnnotation=null;
             if ($annotations->contains('named')) {
-                $namedAnnotation = $annotations->getSingleAnnotation('named');
+                $namedAnnotation=$annotations->getSingleAnnotation('named');
             }
-            $annotation = $annotations->getSingleAnnotation('inject');
-            $newProperties = $this->_arrayToBeanProperties(
-                $propertyName, $this->_inject($propertyName, $annotation, null, $namedAnnotation)
-            );
-            $properties = array_merge($properties, $newProperties);
+            $annotation=$annotations->getSingleAnnotation('inject');
+            $newProperties=$this->arrayToBeanProperties($propertyName, $this->inject($propertyName, $annotation, null, $namedAnnotation));
+            $properties=array_merge($properties, $newProperties);
         }
         $bean->setProperties($properties);
     }
 
-    private function _injectMethods(BeanDefinition $bean)
-    {
-        $class = $bean->getClass();
-        $rClass = $this->_reflectionFactory->getClass($class);
-        $properties = $bean->getProperties();
+    /**
+     * @param BeanDefinition $bean
+     *
+     * @throws InjectByTypeException
+     */
+    private function injectMethods(BeanDefinition $bean) : void {
+        $class=$bean->getClass();
+        $rClass=$this->reflectionFactory->getClass($class);
+        $properties=$bean->getProperties();
         foreach ($rClass->getMethods() as $method) {
-            $methodName = $method->getName();
-            $annotations = $this->_reflectionFactory->getMethodAnnotations($class, $methodName);
-            if (!$annotations->contains('inject')
-                || $annotations->contains('bean')
-                || $method->isConstructor()
-            ) {
+            $methodName=$method->getName();
+            $annotations=$this->reflectionFactory->getMethodAnnotations($class, $methodName);
+            if (!$annotations->contains('inject') || $annotations->contains('bean') ||
+                $method->isConstructor()) {
                 continue;
             }
-            $annotation = $annotations->getSingleAnnotation('inject');
-            $namedAnnotation = null;
+            $annotation=$annotations->getSingleAnnotation('inject');
+            $namedAnnotation=null;
             if ($annotations->contains('named')) {
-                $namedAnnotation = $annotations->getSingleAnnotation('named');
+                $namedAnnotation=$annotations->getSingleAnnotation('named');
             }
             // Just 1 arg now. Multiple arguments need support in the container side.
-            $parameters = $method->getParameters();
+            $parameters=$method->getParameters();
             if (empty($parameters)) {
                 throw new InjectByTypeException($methodName, $methodName, 'Nothing to inject (no arguments in method)');
             }
             if (count($parameters) > 1) {
                 throw new InjectByTypeException($methodName, $methodName, 'Multiple arguments are not yet supported');
             }
-            $type = array_shift($parameters);
-            $type = $type->getClass();
+            $type=array_shift($parameters);
+            $type=$type->getClass();
             if ($type !== null) {
-                $type = $type->getName();
+                $type=$type->getName();
             }
-            $newProperties = $this->_arrayToBeanProperties(
-                $methodName, $this->_inject($methodName, $annotation, $type, $namedAnnotation)
-            );
-            $properties = array_merge($properties, $newProperties);
+            $newProperties=$this->arrayToBeanProperties($methodName, $this->inject($methodName, $annotation, $type, $namedAnnotation));
+            $properties=array_merge($properties, $newProperties);
         }
         $bean->setProperties($properties);
     }
 
-    private function _applyToConstructor(\ReflectionMethod $rMethod, Collection $beanAnnotations, BeanDefinition $bean)
-    {
-        $constructorArguments = $bean->getArguments();
+    /**
+     * @param ReflectionMethod $rMethod
+     * @param Collection       $beanAnnotations
+     * @param BeanDefinition   $bean
+     *
+     * @throws InjectByTypeException
+     */
+    private function applyToConstructor(ReflectionMethod $rMethod, Collection $beanAnnotations,
+        BeanDefinition $bean) : void {
+        $constructorArguments=$bean->getArguments();
         if (!$beanAnnotations->contains('inject')) {
             return;
         }
-        $annotations = $beanAnnotations->getAnnotations('inject');
+        $annotations=$beanAnnotations->getAnnotations('inject');
         foreach ($annotations as $annotation) {
             if ($annotation->hasOption('type')) {
                 if (!$annotation->hasOption('name')) {
-                    throw new InjectByTypeException(
-                    	'constructor', 'Unknown', 'Cant specify type without name'
-                    );
+                    throw new InjectByTypeException('constructor', 'Unknown', 'Cant specify type without name');
                 }
             }
             if ($annotation->hasOption('name')) {
                 if (!$annotation->hasOption('type')) {
-                    throw new InjectByTypeException(
-                    	'constructor', 'Unknown', 'Cant specify name without type'
-                    );
+                    throw new InjectByTypeException('constructor', 'Unknown', 'Cant specify name without type');
                 }
-                $name = $annotation->getOptionSingleValue('name');
-                $type = $annotation->getOptionSingleValue('type');
-                $namedAnnotation = null;
+                $name=$annotation->getOptionSingleValue('name');
+                $type=$annotation->getOptionSingleValue('type');
+                $namedAnnotation=null;
                 if ($beanAnnotations->contains('named')) {
                     foreach ($beanAnnotations->getAnnotations('named') as $namedAnnotationCandidate) {
                         if ($namedAnnotationCandidate->hasOption('arg')) {
-                            $target = $namedAnnotationCandidate->getOptionSingleValue('arg');
+                            $target=$namedAnnotationCandidate->getOptionSingleValue('arg');
                             if ($target == $name) {
-                                $namedAnnotation = $namedAnnotationCandidate;
+                                $namedAnnotation=$namedAnnotationCandidate;
                             }
                         }
                     }
                 }
-                $newArgs = $this->_inject($name, $annotation, $type, $namedAnnotation);
-                $constructorArguments = array_merge(
-                    $constructorArguments,
-                    $this->_arrayToConstructorArguments($name, $newArgs)
-                );
+                $newArgs=$this->inject($name, $annotation, $type, $namedAnnotation);
+                $constructorArguments=array_merge($constructorArguments, $this->arrayToConstructorArguments($name, $newArgs));
             } else {
                 foreach ($rMethod->getParameters() as $parameter) {
-                    $parameterName = $parameter->getName();
-                    $type = $parameter->getClass();
+                    $parameterName=$parameter->getName();
+                    $type=$parameter->getClass();
                     if ($type === null) {
                         continue;
                     }
-                    $type = $type->getName();
-                    $namedAnnotation = null;
+                    $type=$type->getName();
+                    $namedAnnotation=null;
                     if ($beanAnnotations->contains('named')) {
                         foreach ($beanAnnotations->getAnnotations('named') as $namedAnnotationCandidate) {
                             if ($namedAnnotationCandidate->hasOption('arg')) {
-                                $target = $namedAnnotationCandidate->getOptionSingleValue('arg');
+                                $target=$namedAnnotationCandidate->getOptionSingleValue('arg');
                                 if ($target == $parameterName) {
-                                    $namedAnnotation = $namedAnnotationCandidate;
+                                    $namedAnnotation=$namedAnnotationCandidate;
                                 }
                             }
                         }
                     }
-
-                    $newArgs = $this->_inject($parameterName, $annotation, $type, $namedAnnotation);
-                    $constructorArguments = array_merge(
-                        $constructorArguments,
-                        $this->_arrayToConstructorArguments($parameterName, $newArgs, $namedAnnotation)
-                    );
+                    $newArgs=$this->inject($parameterName, $annotation, $type, $namedAnnotation);
+                    $constructorArguments=array_merge($constructorArguments, $this->arrayToConstructorArguments($parameterName, $newArgs));
                 }
             }
         }
         $bean->setArguments($constructorArguments);
     }
 
-    private function _injectConstructorArguments(BeanDefinition $bean)
-    {
+    /**
+     * @param BeanDefinition $bean
+     */
+    private function injectConstructorArguments(BeanDefinition $bean) : void {
         if ($bean->isCreatedWithFactoryBean()) {
-            $factoryMethod = $bean->getFactoryMethod();
-            $factoryBean = $bean->getFactoryBean();
-            $def = $this->_container->getBeanDefinition($factoryBean);
-            $class = $def->getClass();
-            $rMethod = $this->_reflectionFactory->getMethod($class, $factoryMethod);
-            $annotations = $this->_reflectionFactory->getMethodAnnotations($class, $factoryMethod);
-            $this->_applyToConstructor($rMethod, $annotations, $bean);
-        } else if ($bean->isCreatedByConstructor()) {
-            $class = $bean->getClass();
-            $rClass = $this->_reflectionFactory->getClass($class);
-            $rMethod = $rClass->getConstructor();
+            $factoryMethod=$bean->getFactoryMethod();
+            $factoryBean=$bean->getFactoryBean();
+            $def=$this->container->getBeanDefinition($factoryBean);
+            $class=$def->getClass();
+            $rMethod=$this->reflectionFactory->getMethod($class, $factoryMethod);
+            $annotations=$this->reflectionFactory->getMethodAnnotations($class, $factoryMethod);
+            $this->applyToConstructor($rMethod, $annotations, $bean);
+            return;
+        }
+        if ($bean->isCreatedByConstructor()) {
+            $class=$bean->getClass();
+            $rClass=$this->reflectionFactory->getClass($class);
+            $rMethod=$rClass->getConstructor();
             if ($rMethod) {
-                $annotations = $this->_reflectionFactory->getMethodAnnotations(
-                    $class, $rMethod->getName()
-                );
-                $this->_applyToConstructor($rMethod, $annotations, $bean);
+                $annotations=$this->reflectionFactory->getMethodAnnotations($class, $rMethod->getName());
+                $this->applyToConstructor($rMethod, $annotations, $bean);
             }
         }
-    }
-
-    /**
-     * (non-PHPdoc)
-     * @see Ding\Bean\Lifecycle.IAfterDefinitionListener::afterDefinition()
-     */
-    public function afterDefinition(BeanDefinition $bean)
-    {
-        $this->_injectProperties($bean);
-        $this->_injectMethods($bean);
-        $this->_injectConstructorArguments($bean);
-        return $bean;
-    }
-
-    public function setContainer(IContainer $container)
-    {
-        $this->_container = $container;
-    }
-    /**
-     * (non-PHPdoc)
-     * @see Ding\Reflection.IReflectionFactoryAware::setReflectionFactory()
-     */
-    public function setReflectionFactory(IReflectionFactory $reflectionFactory)
-    {
-        $this->_reflectionFactory = $reflectionFactory;
     }
 }

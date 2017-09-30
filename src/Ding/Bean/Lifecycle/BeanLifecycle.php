@@ -2,8 +2,6 @@
 /**
  * Definition for a bean lifecycle.
  *
- * PHP Version 5
- *
  * @category   Ding
  * @package    Bean
  * @subpackage Lifecycle
@@ -27,55 +25,47 @@
  *
  */
 namespace Ding\Bean\Lifecycle;
-
 /**
  * Definition for a bean lifecycle.
  *
- * PHP Version 5
- *
- * @category   Ding
- * @package    Bean
- * @subpackage Lifecycle
- * @author     Marcelo Gornstein <marcelog@gmail.com>
- * @license    http://marcelog.github.com/ Apache License 2.0
- * @link       http://marcelog.github.com/
+ * @package Ding\Bean\Lifecycle
  */
-class BeanLifecycle
-{
+class BeanLifecycle {
     /**
      * The bean has just been defined and is about to be created. The definition
      * will not change after this step.
-     * @var integer
+     *
+     * @var string
      */
-    const AfterDefinition = 'afterDefinition';
-
+    const AfterDefinition='afterDefinition';
     /**
      * Before calling factory::createBean()
-     * @var integer
+     *
+     * @var string
      */
-    const BeforeCreate = 'beforeCreate';
-
+    const BeforeCreate='beforeCreate';
     /**
      * After calling factory::createBean()
-     * @var integer
+     *
+     * @var string
      */
-    const AfterCreate = 'afterCreate';
-
+    const AfterCreate='afterCreate';
     /**
      * Before calling factory::assemble()
-     * @var integer
+     *
+     * @var string
      */
-    const BeforeAssemble = 'beforeAssemble';
-
+    const BeforeAssemble='beforeAssemble';
     /**
      * After calling factory::assemble()
-     * @var integer
+     *
+     * @var string
      */
-    const AfterAssemble = 'afterAssemble';
-
+    const AfterAssemble='afterAssemble';
     /**
      * Right after configuring everything, ready to be used by the user.
-     * @var integer
+     *
+     * @var string
      */
-    const AfterConfig = 'afterConfig';
+    const AfterConfig='afterConfig';
 }

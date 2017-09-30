@@ -2,8 +2,6 @@
 /**
  * Interface for a BeforeAssemble lifecycle event.
  *
- * PHP Version 5
- *
  * @category   Ding
  * @package    Bean
  * @subpackage Lifecycle
@@ -33,16 +31,12 @@ use Ding\Bean\BeanDefinition;
 /**
  * Interface for a BeforeAssemble lifecycle event.
  *
- * PHP Version 5
- *
- * @category   Ding
- * @package    Bean
- * @subpackage Lifecycle
- * @author     Marcelo Gornstein <marcelog@gmail.com>
- * @license    http://marcelog.github.com/ Apache License 2.0
- * @link       http://marcelog.github.com/
+ * @package Ding\Bean\Lifecycle
  */
-interface IBeforeAssembleListener extends ILifecycleListener
-{
-    public function beforeAssemble($bean, BeanDefinition $beanDefinition);
+interface IBeforeAssembleListener extends ILifecycleListener {
+    /**
+     * @param                $bean
+     * @param BeanDefinition $beanDefinition
+     */
+    public function beforeAssemble($bean, BeanDefinition $beanDefinition):void;
 }

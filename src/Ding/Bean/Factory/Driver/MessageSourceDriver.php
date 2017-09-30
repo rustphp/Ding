@@ -3,8 +3,6 @@
  * This driver will inject the MessageSource to the beans that implement
  * IMessageSourceAware
  *
- * PHP Version 5
- *
  * @category   Ding
  * @package    Bean
  * @subpackage Factory.Driver
@@ -29,78 +27,69 @@
  */
 namespace Ding\Bean\Factory\Driver;
 
-use Ding\Reflection\IReflectionFactoryAware;
-use Ding\Reflection\IReflectionFactory;
 use Ding\Bean\BeanDefinition;
-use Ding\Bean\Lifecycle\IAfterCreateListener;
 use Ding\Bean\Lifecycle\IAfterConfigListener;
-use Ding\Container\IContainerAware;
+use Ding\Bean\Lifecycle\IAfterCreateListener;
 use Ding\Container\IContainer;
+use Ding\Container\IContainerAware;
+use Ding\Container\Impl\ContainerImpl;
+use Ding\MessageSource\IMessageSource;
+use Ding\MessageSource\IMessageSourceAware;
+use Ding\Reflection\IReflectionFactory;
+use Ding\Reflection\IReflectionFactoryAware;
 
 /**
  * This driver will inject the MessageSource to the beans that implement
  * IMessageSourceAware
  *
- * PHP Version 5
- *
- * @category   Ding
- * @package    Bean
- * @subpackage Factory.Driver
- * @author     Marcelo Gornstein <marcelog@gmail.com>
- * @license    http://marcelog.github.com/ Apache License 2.0
- * @link       http://marcelog.github.com/
+ * @package Ding\Bean\Factory\Driver
  */
-class MessageSourceDriver
-    implements IAfterConfigListener, IAfterCreateListener,
-    IContainerAware, IReflectionFactoryAware
-{
+class MessageSourceDriver implements IAfterConfigListener, IAfterCreateListener, IContainerAware, IReflectionFactoryAware {
     /**
      * Container.
-     * @var IContainer
+     *
+     * @var ContainerImpl
      */
-    private $_container;
+    private $container;
     /**
      * A ReflectionFactory implementation.
+     *
      * @var IReflectionFactory
      */
     protected $reflectionFactory;
 
     /**
-     * (non-PHPdoc)
-     * @see Ding\Reflection.IReflectionFactoryAware::setReflectionFactory()
+     * @param IReflectionFactory $reflectionFactory
      */
-    public function setReflectionFactory(IReflectionFactory $reflectionFactory)
-    {
-        $this->reflectionFactory = $reflectionFactory;
+    public function setReflectionFactory(IReflectionFactory $reflectionFactory) : void {
+        $this->reflectionFactory=$reflectionFactory;
     }
+
     /**
-     * (non-PHPdoc)
-     * @see Ding\Container.IContainerAware::setContainer()
+     * @param IContainer $container
      */
-    public function setContainer(IContainer $container)
-    {
-        $this->_container = $container;
+    public function setContainer(IContainer $container) : void {
+        $this->container=$container;
     }
-    /**
-     * (non-PHPdoc)
-     * @see Ding\Bean\Lifecycle.ILifecycleListener::afterConfig()
-     */
-    public function afterConfig()
-    {
-        try
-        {
-            $bean = $this->_container->getBean('messageSource');
-            $this->_container->setMessageSource($bean);
-        } catch(\Exception $e) {
+
+    public function afterConfig() : void {
+        $bean=$this->container->getBean('messageSource');
+        if ($bean instanceof IMessageSource) {
+            $this->container->setMessageSource($bean);
         }
     }
 
-    public function afterCreate($bean, BeanDefinition $beanDefinition)
-    {
-        $rClass = $this->reflectionFactory->getClass(get_class($bean));
-        if ($rClass->implementsInterface('Ding\MessageSource\IMessageSourceAware')) {
-            $bean->setMessageSource($this->_container);
+    /**
+     * @param                $bean
+     * @param BeanDefinition $beanDefinition
+     */
+    public function afterCreate($bean, BeanDefinition $beanDefinition) : void {
+        //$rClass=$this->reflectionFactory->getClass(get_class($bean));
+        //if ($rClass->implementsInterface('Ding\MessageSource\IMessageSourceAware')) {
+        if ($bean instanceof IMessageSourceAware) {
+            $bean->setMessageSource($this->container);
         }
-        return $bean;
+        //}
+        //return $bean;
     }
 }

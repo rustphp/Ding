@@ -2,8 +2,6 @@
 /**
  * A definition for an annotation.
  *
- * PHP Version 5
- *
  * @category Ding
  * @package  Annotation
  * @author   Marcelo Gornstein <marcelog@gmail.com>
@@ -32,86 +30,97 @@ use Ding\Annotation\Exception\AnnotationException;
 /**
  * A definition for an annotation.
  *
- * PHP Version 5
- *
- * @category Ding
- * @package  Annotation
- * @author   Marcelo Gornstein <marcelog@gmail.com>
- * @license  http://marcelog.github.com/ Apache License 2.0
- * @link     http://marcelog.github.com/
+ * @package Ding\Annotation
  */
-class Annotation
-{
+class Annotation {
     /**
      * Annotation name.
+     *
      * @var string
      */
-    private $_name;
-
+    private $name;
     /**
      * Annotation options.
+     *
      * @var array
      */
-    private $_options;
+    private $options;
 
-    public function __sleep()
-    {
-        return array('_name', '_options');
+    /**
+     * Constructor.
+     *
+     * @param string $name Annotation name.
+     */
+    public function __construct(string $name) {
+        $this->name=strtolower($name);
+        $this->options=[];
+    }
+
+    /**
+     * @return array
+     */
+    public function __sleep() : array {
+        return ['name', 'options'];
     }
 
     /**
      * Returns annotation name.
      *
-	 * @return string
+     * @return string
      */
-    public function getName()
-    {
-        return $this->_name;
+    public function getName() : string {
+        return $this->name;
     }
 
-    public function getOptionValues($name)
-    {
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     * @throws AnnotationException
+     */
+    public function getOptionValues(string $name) {
         if (!$this->hasOption($name)) {
             throw new AnnotationException("Unknown option: $name");
         }
-        return $this->_options[$name];
+        return $this->options[$name];
     }
 
-    public function getOptions()
-    {
-        return $this->_options;
-    }
-
-    public function addOption($name, $value)
-    {
-        $name = strtolower($name);
-        if (!$this->hasOption($name)) {
-            $this->_options[$name] = array();
-        }
-        $this->_options[$name][] = $value;
-    }
-
-    public function hasOption($name)
-    {
-        $name = strtolower($name);
-        return isset($this->_options[$name]);
-    }
-
-    public function getOptionSingleValue($name)
-    {
-        $values = $this->getOptionValues($name);
-        return array_shift($values);
-    }
     /**
-     * Constructor.
-     *
-     * @param string $name Annotation name.
-     *
-     * @return void
+     * @return array
      */
-    public function __construct($name)
-    {
-        $this->_name = strtolower($name);
-        $this->_options = array();
+    public function getOptions() : array {
+        return $this->options;
+    }
+
+    /**
+     * @param string $name
+     * @param        $value
+     */
+    public function addOption(string $name, $value) : void {
+        $name=strtolower($name);
+        if (!$this->hasOption($name)) {
+            $this->options[$name]=[];
+        }
+        $this->options[$name][]=$value;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function hasOption(string $name) : bool {
+        $name=strtolower($name);
+        return isset($this->options[$name]);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function getOptionSingleValue(string $name) {
+        $values=$this->getOptionValues($name);
+        return array_shift($values);
     }
 }

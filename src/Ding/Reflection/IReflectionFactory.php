@@ -2,8 +2,6 @@
 /**
  * Internal reflection manager.
  *
- * PHP Version 5
- *
  * @category Ding
  * @package  Reflection
  * @author   Marcelo Gornstein <marcelog@gmail.com>
@@ -27,19 +25,18 @@
  */
 namespace Ding\Reflection;
 
+use Ding\Annotation\Collection;
+use ReflectionClass;
+use ReflectionException;
+use ReflectionMethod;
+use ReflectionProperty;
+
 /**
  * Internal reflection manager.
  *
- * PHP Version 5
- *
- * @category Ding
- * @package  Reflection
- * @author   Marcelo Gornstein <marcelog@gmail.com>
- * @license  http://marcelog.github.com/ Apache License 2.0
- * @link     http://marcelog.github.com/
+ * @package Ding\Reflection
  */
-interface IReflectionFactory
-{
+interface IReflectionFactory {
     /**
      * Returns all classes annotated with the given annotation.
      *
@@ -48,32 +45,36 @@ interface IReflectionFactory
      * @return string[]
      */
     public function getClassesByAnnotation($annotation);
+
     /**
      * Returns all annotations for the given class.
      *
      * @param string $class Class name.
      *
-     * @return Ding\Annotation\Collection
+     * @return Collection
      */
-    public function getClassAnnotations($class);
+    public function getClassAnnotations(string $class) : Collection;
+
     /**
      * Returns all annotations for the given method.
      *
-     * @param string $class Class name.
+     * @param string $class  Class name.
      * @param string $method Method name.
      *
-     * @return Ding\Annotation\Collection
+     * @return Collection
      */
-    public function getMethodAnnotations($class, $method);
+    public function getMethodAnnotations(string $class, string $method) : Collection;
+
     /**
      * Returns all annotations for the given property.
      *
-     * @param string $class Class name.
+     * @param string $class    Class name.
      * @param string $property Property name.
      *
-     * @return Ding\Annotation\Collection
+     * @return Collection
      */
-    public function getPropertyAnnotations($class, $property);
+    public function getPropertyAnnotations(string $class, string $property) : Collection;
+
     /**
      * Returns a (cached) reflection class.
      *
@@ -82,7 +83,8 @@ interface IReflectionFactory
      * @throws ReflectionException
      * @return ReflectionClass
      */
-    public function getClass($class);
+    public function getClass(string $class) : ReflectionClass;
+
     /**
      * Returns a (cached) reflection class method.
      *
@@ -92,17 +94,18 @@ interface IReflectionFactory
      * @throws ReflectionException
      * @return ReflectionMethod
      */
-    public function getMethod($class, $method);
+    public function getMethod(string $class, string $method) : ReflectionMethod;
+
     /**
      * Returns a (cached) reflection class property.
      *
-     * @param string $class  Class name.
+     * @param string $class    Class name.
      * @param string $property Property name.
      *
      * @throws ReflectionException
      * @return ReflectionProperty
      */
-    public function getProperty($class, $property);
+    public function getProperty(string $class, string $property) : ReflectionProperty;
 
     /**
      * Returns all ancestors for the given class name.
@@ -111,7 +114,7 @@ interface IReflectionFactory
      *
      * @return string[]
      */
-    public function getClassAncestors($class);
+    public function getClassAncestors(string $class) : array;
 
     /**
      * Returns all ancestors and all implemented interfaces for the given
@@ -121,5 +124,5 @@ interface IReflectionFactory
      *
      * @return string[]
      */
-    public function getClassAncestorsAndInterfaces($class);
+    public function getClassAncestorsAndInterfaces(string $class) : array;
 }
